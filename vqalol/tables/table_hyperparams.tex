@@ -1,0 +1,21 @@
+\begin{table}
+    \centering
+    \begin{tabular}{lcl}
+        \toprule
+        \textbf{Hyper-Parameters } & \hphantom & \textbf{Model} \\ 
+        \toprule
+        Batch Size             && 32                         \\ 
+        Learning Rate          && 5e-5                       \\ 
+        Dropout                && 0.1                        \\ 
+        Language Layers        && 9                          \\ 
+        Cross-Modality Layer   && 5                          \\ 
+        Object Relation Layers && 5                          \\ 
+        Optimizer              && BertAdam                   \\ 
+        Warmup                 && 0.1                        \\ 
+        Max Gradient Norm      && 5.0                        \\ 
+        Max Text Length    && 20                         \\ 
+        \bottomrule
+    \end{tabular}
+    \caption{Hyper-Parameters for training LXMERT and our models}
+    \label{tab:hyper}
+\end{table}

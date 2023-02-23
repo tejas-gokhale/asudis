@@ -1,0 +1,77 @@
+\begin{table}[t]
+    \caption{Training dataset distribution and sizes, for explicit training with new data. Note that training dataset sizes are consistent with the VQA dataset.}
+    \begin{center}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lccccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{\pbox{15mm}{Training\\Datasets}}} & \multicolumn{5}{c}{\textbf{Proportion of datasets (\%)}} & \hphantom &  \multirow{2}{*}{\textbf{\pbox{25mm}{Training\\Samples}}}\\
+    \cmidrule{2-6}
+     & VQA-Other & VQA-Number & VQA-YesNo & \texttt{Comp} & \texttt{Supp} & \\
+    \toprule
+    VQA & 50 & 12 & 38 & 0 & 0 && 443754\\
+    VQA+Comp &  50 & 12 & 19 & 19 & 0 && 443754\\
+    VQA+Comp+Supp & 50 & 12 & 12.66 & 12.66 & 12.66 && 443754\\
+    \bottomrule
+    \end{tabular}
+    }
+    \end{center}
+    
+    \label{table:data_exp1}
+\end{table}
+
+
+\begin{table}[t]
+    \caption{Training datasets distribution and sizes, for the experiment for understanding the effect of logically composed questions. We progressively add more logical samples, and get the learning curve as shown in the paper.}
+    \begin{center}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{{Training Datasets}}}
+    & \multicolumn{5}{c}{\textbf{Proportion of samples (\%)}} & \multirow{2}{*}{\textbf{\pbox{20mm}{Training\\Samples}}}\\
+    \cmidrule{2-6}
+    & VQA-Other & VQA-Number & VQA-YesNo & \texttt{Comp} & \texttt{Supp} & \\
+    \toprule
+    VQA & 50 & 12 & 38 & 0 & 0 & 443754 \\
+    \midrule
+    VQA + Comp (10) & 49.999 & 11.999 & 37.999 & 0.002 & 0 & 443764\\
+    VQA + Comp (100) & 49.989 & 11.997 & 37.991 & 0.022 & 0 & 443854\\
+    VQA + Comp (1k) & 49.888 & 11.973 &  37.914 & 0.225 & 0 & 444754\\
+    VQA + Comp (10k) & 48.898 & 11.736 &  37.162 & 2.204 & 0 & 453754\\
+    VQA + Comp (100k) & 40.805 & 9.793 & 31.011 & 18.391 & 0 & 543754\\
+    \midrule
+    VQA + Comp (10) + Supp (10) & 49.998 & 11.999 &	37.998 & 0.002 & 0.002	 & 443774\\
+    VQA + Comp (100) + Supp (100) & 49.977	& 11.995 & 37.983 & 0.022 & 0.022 & 443954\\
+    VQA + Comp (1k)+ Supp (1k) & 49.776 & 11.946 & 37.829 &	0.224 & 0.224 & 445754\\
+    VQA + Comp (10k)+ Supp (10k) & 47.844 &	11.483 & 36.361 & 2.156 & 2.156 & 463754\\
+    VQA + Comp (100k)+ Supp (100k)& 34.466 &	8.272 & 26.194 & 15.534	& 15.534 & 643754\\
+    \midrule 
+    \end{tabular}
+    }
+    \end{center}
+    
+    \label{table:data_exp3}
+\end{table}
+
+\begin{table}
+    \caption{Training datasets distribution and sizes, for training with logical questions with a maximum of one connective. 
+    % Sizes of these datasets are the same as those in Table~\ref{table:exp2}
+    }
+    \begin{center}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcccccc}
+    \toprule
+    \multirow{2}{*}{\textbf{{Training Datasets}}}
+    & \multicolumn{5}{c}{\textbf{Proportion of samples (\%)}} & \multirow{2}{*}{\textbf{\pbox{20mm}{Training\\Samples}}}\\
+    \cmidrule{2-6}
+    & VQA-Other & VQA-Number & VQA-YesNo & \texttt{Comp-Single} & \texttt{Supp-Single} & \\
+    \toprule
+    YesNo &  0 & 0 & 100 & 0 & 0 & 168626\\
+    YesNo + Comp &  0 & 0 & 50 & 50 & 0 & 337253 \\
+    YesNo + Comp + Supp & 0 & 0 & 33.33 & 33.33 & 33.33 & 505879\\
+    \bottomrule
+    \end{tabular}
+    }
+    \end{center}
+    
+    \label{table:data_exp4}
+\end{table}

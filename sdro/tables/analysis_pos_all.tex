@@ -1,0 +1,24 @@
+\begin{table}
+    \centering
+    % \footnotesize
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l ccc c ccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{3}{c}{SISP~(Pos)} & \hphantom & \multicolumn{3}{c}{SISP~(All)} \\ 
+         \cmidrule{2-4} \cmidrule{6-8}
+         & Clean & SP & SI && Clean & SP & SI \\
+        \midrule
+        Data-Aug & 78.23 & 68.02 & 57.48 && 78.34 & 72.11 & 84.44 \\
+        SW-SDRO  & 78.81 & 62.06 & 66.07 && 79.23 & 69.23 & 67.35 \\
+        GW-SDRO  & 79.10 & 63.47 & 62.29 && 79.41 & 68.67 & 84.54\\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Comparison of performance if only positive samples 
+    % or both positive or negative samples 
+    % i.e.\ samples with \texttt{True} labels 
+    are used as inputs for SISP transformations
+    % ,  transformations over both positive and negative samples.
+    }
+    \label{tab:analysis_pos_all}
+\end{table}

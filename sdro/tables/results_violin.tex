@@ -1,0 +1,27 @@
+\begin{table}
+    \centering
+    % \footnotesize
+    % \resizebox{0.9\linewidth}{!}{
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Clean Acc.}} & \multicolumn{3}{c}{\textbf{SISP Acc.}} \\
+        \cmidrule{3-5}
+         &  & SP & SI & Avg. \\
+        \midrule
+        VIOLIN$_{BASE}$              & 68.07 & 57.17 & 57.20 & 57.18 \\           
+        \qquad + data-aug            & 61.58 & \textul{67.64} & 67.70 & 67.67 \\
+        \qquad + SW-SDRO             & 62.81 & 62.84 & 62.68 & 62.76 \\
+        \qquad + GW-SDRO             & 63.71 & 64.58 & 63.16 & 63.87 \\
+        \qquad \qquad + Ensemble     & 66.56 & --''-- & --''-- & --''-- \\
+        \midrule
+        HERO$_{BASE}$               & 68.55 & 65.59 & 32.00 & 48.80 \\
+        \qquad + data-aug            & 65.21 & 59.20 & 81.81 & \textul{70.51} \\
+        \qquad + SW-SDRO    & \cellcolor{VeryLightGray}{\textbf{68.83}} & 58.97 & 77.83 & 68.41 \\
+        \qquad + GW-SDRO             & 68.19 & 56.20 & \textul{82.92} & 69.57 \\
+        \qquad \qquad + Ensemble     & \cellcolor{VeryLightGray}{\textbf{69.90}} & --''-- & --''-- & --''-- \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption[Results on VIOLIN test set.]{Results on VIOLIN.\footnotemark[\value{footnote}]}
+    \label{tab:results_violin}
+\end{table}

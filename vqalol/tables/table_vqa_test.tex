@@ -1,0 +1,33 @@
+\begin{table*}[t]
+    \centering
+     \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}lllcccccccc@{}}
+    \toprule
+    \multirow{2}{*}{Model} & \multirow{2}{*}{Parser} & \multirow{2}{*}{\textbf{\pbox{20mm}{Training \\Data}}} & \multicolumn{4}{c}{\textbf{Test-Std. Accuracy (\%) $\uparrow$}} & \hphantom & \multicolumn{3}{c}{\textbf{Val. Accuracy (\%) $\uparrow$}}\\
+     \cmidrule{4-7} \cmidrule{9-11}
+     & & & Yes-No & Number & Other & Overall & & {Compose} & Supplement & Overall \\
+    \midrule
+    MCAN & None & VQA~\citep{Yu_2019_CVPR} & $86.82^{\#}$ & $53.26^{\#}$ & $60.72^{\#}$ & 70.90 & & 52.42 & {*} & {*}\\
+    LXMERT & None & VQA~\citep{tan2019lxmert} & \textbf{88.20} & \textbf{54.20} & \textbf{63.10} & \textbf{72.50} & & 50.79 & 50.51 & 50.65\\
+    LOL ($\mathit{q}$ATT) & None & VQA &  \underline{87.33} & \underline{54.03} & \underline{62.40} & \underline{72.03} & & 48.99 & 50.54 & 49.77\\
+    \midrule
+    LXMERT & Oracle & VQA & 88.20 & 54.20 & 63.10 & 72.50 & & 86.38 & 74.29 & 80.33 \\
+    LXMERT & Trained & VQA & 88.20 & 54.20 & 63.10 & 72.50 & & 86.35 & 68.75 & 77.55\\
+    LOL (full) & Oracle & VQA+Ours & 86.55 & 53.42 & 61.58 &71.04 & & 85.79 & 88.51 & 87.15\\
+    LOL (full) & Trained & VQA+Ours & 86.55 & 53.42 & 61.58 &71.04 & & 82.13 & 84.17 & 83.15\\
+    \midrule
+    LXMERT & None & VQA+Ours & 85.23 & 51.25 & 60.58 & 69.78 & & 75.31 & 85.25 & 80.28 \\
+    % LOL & None & VQA+Ours & 86.55 & 53.42 & 61.58 & 71.04 & & 72.88 & 88.32 \\
+    LOL ($\mathit{q}$ATT) & None & VQA+Ours &  86.79 & 52.66 & 61.85 & 71.19 & & 79.88 & 87.12 & 83.50\\
+    LOL (full)
+    % ($\mathit{q}$ATT+$\ell$ATT) 
+    & None & VQA+Ours & 86.55 & 53.42 & 61.58 &71.04 & & \underline{\textbf{82.39}} & \underline{\textbf{87.80}} & 85.10\\
+    \bottomrule
+    \end{tabular}
+    }
+    \caption[Test Set Results]{Performance on `test-standard' set of VQA-v2 and validation set of our datasets. LOL performance is close to SOTA on VQA-v2, but significantly better at logical robustness. $^*$\text{MCAN} uses a fixed vocabulary 
+    % so we are unable to evaluate on 
+    that prohibits evaluation on \texttt{VQA-Supplement} which has questions created from COCO captions. 
+    $^{\#}$Test-dev scores, since MCAN does not report test-std single-model scores\footnotemark[2]}
+    \label{table:sota}
+\end{table*}

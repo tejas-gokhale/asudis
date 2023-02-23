@@ -1,0 +1,382 @@
+\chapter{Data Mutation for Robustness to Changing Priors}
+\label{chap:mutant}
+While progress has been made on the visual question answering leaderboards, models often utilize spurious correlations and priors in datasets under the i.i.d. setting. 
+As such, evaluation on out-of-distribution (OOD) test samples has emerged as a proxy for generalization.
+In this paper, we present \textit{MUTANT}, a training paradigm that exposes the model to perceptually similar, yet semantically distinct \textit{mutations} of the input, to improve OOD generalization, such as the VQA-CP challenge.
+Under this paradigm, models utilize a consistency-constrained training objective to understand the effect of semantic changes in input (question-image pair) on the output (answer).
+Unlike existing methods on VQA-CP, \textit{MUTANT} does not rely on the knowledge about the nature of train and test answer distributions.
+\textit{MUTANT} establishes a new state-of-the-art accuracy on VQA-CP with a $10.57\%$ improvement.
+Our work opens up avenues for the use of semantic input mutations for OOD generalization in question answering.
+% \end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{mutant/figures/teaser.pdf}
+    \caption{Illustration of the mutant samples. The input mutation, either by manipulating the image or the question, results in a change in the answer.}
+    \label{fig:teaser}
+\end{figure}
+
+
+Availability of large-scale datasets has enabled the use of statistical machine learning in vision and language understanding, and has lead to significant advances.
+However, the commonly used evaluation criterion is the performance of models on test-samples drawn from the same distribution as the training dataset, which cannot be a measure of generalization.
+Training under this ``independent and identically distributed" (i.i.d.)~setting can drive decision making to be highly influenced by dataset biases and spurious correlations as shown in both natural language inference~\citep{kaushik2018much,poliak2018hypothesis,mccoy2019right} and visual question answering~\citep{goyal2017making,vqa-cp,selvaraju2020squinting}.
+As such, evaluation on out-of-distribution (OOD) samples has emerged as a metric for generalization.
+
+Visual question answering (VQA)~\citep{antol2015vqa} is a task at the crucial intersection of vision and language.
+The aim of VQA models is to provide an answer, given an input image and a question about it.
+Large datasets~\citep{antol2015vqa} have been extensively used for developing VQA models.
+However over-reliance on datasets can cause models to learn spurious correlations such as linguistic priors~\citep{vqa-cp} that are specific to certain datasets and do not generalize to ``Out-of-Distribution" (OOD) samples, as shown in Figure~\ref{fig:teaser}.
+While learning patterns in the data is important, learning dataset-specific spurious correlations is not a feature of robust VQA models.
+Developing robust models has thus become a key pursuit for recent work in visual question answering through data augmentation~\citep{goyal2017making}, reorganization~\citep{vqa-cp}.
+
+Every dataset contains biases; indeed inductive bias is \textit{necessary} for machine learning algorithms to work.
+\citet{mitchell1980need} states that an unbiased learner's ability to classify is no better than a look-up from memory.
+However this bias has a component which is useful for generalization (positive bias), and a component due to spurious correlations (negative bias).
+We use the term ``positive bias" to denote the correlations that are necessary to perform a task --- for instance, the answer to a ``What sport is \dots" question is correlated to a name of a sport.
+The term ``negative bias" is used for spurious correlations tat may be learned from the data --- for instance, always predicting ``tennis" as the answer to ``What sport\dots" questions.
+The goal of OOD generalization is to mitigate negative bias while learning to perform the task.
+However existing methods such as LMH~\citep{clark2019don}
+try to remove all biases between question-answer pairs, by penalizing examples that can be answered without looking at the image;
+we believe this to be counter-productive.
+The analogy of antibiotics which are designed to remove pathogen bacteria, but also end up removing useful gut microbiome~\citep{willing2011shifting} is useful to understand this phenomenon.
+
+We present a method that focuses on increasing positive bias and mitigating negative bias, to address the problem of OOD generalization in visual question answering.
+Our approach is to enable the \textbf{mutation} of inputs (questions and images) in order to expose the VQA model to perceptually similar yet semantically dissimilar samples. 
+The intuition 
+is to implicitly allow the model to understand the critical changes in the input which lead to a change in the answer.
+This concept of mutations is illustrated in Figure~\ref{fig:teaser}.
+If the color of the frisbee is changed, or the child removed, i.e. \textit{when an image-mutation is performed}, the answer to the question changes.
+Similarly, if a word is substituted by an adversarial word (bins$\rightarrow$bottles), an antonym, or negation (healthy$\rightarrow$not healthy), i.e. \textit{when a question-mutation is performed}, the answer also changes.
+Notice that both mutations do not significantly change the input, most of the pixels in the image and words in the question are unchanged, and the type of reasoning required to answer the question is unchanged.
+However the mutation significantly changes the answer.
+
+In this work, we use this concept of mutations to enable models to focus on parts of the input that are critical to the answering process, by training our models to produce answers that are consistent with such mutations.
+We present a question-type exposure framework which teaches the model that although such linguistic priors may exist in training data
+(such as the dominant answer ``tennis" to ``What sport is ..." questions),
+other sports can also be answers to such questions, thus mitigating negative bias.
+This is in contrast to \citet{chen2020counterfactual} who focus on using data augmentation as a means for mitigating language bias.
+This work takes a step away from explicit de-biasing as a method for OOD generalization and instead proposes amplification of positive bias and implicit attenuation of spurious correlations as the objective. Our contributions are as follow.
+% \begin{itemize}[nosep,noitemsep]
+%     \item We introduce the Mutant paradigm for training VQA models and the sample-generation mechanism which takes advantage of semantic transformations of the input image or question, for the goal of OOD generalization.
+%     \item In addition to the conventional classification task, we formulate a novel training objective using Noise Contrastive Estimation over the projections of cross-modal features and answer embeddings on a shared projection manifold, to predict the correct answer.
+%     \item Our pairwise consistency loss acts as a regularization that seeks to bring the distance between ground-truth answer vectors closer to the distance between predicted answer vectors for a pair of original and mutant inputs.
+%     \item Extensive experiments and analyses demonstrate advantages of our method on the VQA-CP dataset, and establish a new state-of-the-art of $\mathbf{69.52\%}$, an improvement of $\mathbf{10.57\%}$.
+
+% \end{itemize}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% METHOD
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{MUTANT}
+We consider the open-ended VQA problem as a multi-class classification problem.
+The VQA dataset $\mathcal{D} = \{Q_i, I_i, a_i\}_{i=1}^N$ consists of questions $Q_i \in \mathcal{Q}$ and images $I_i \in {I}$, and answers $a_i \in \mathcal{A}$.
+Many contemporary VQA models such as Up-Dn~\citep{anderson2018bottom} and LXMERT~\citep{tan2019lxmert} first extract cross-modal features from the image and question using attention layers, and then use these features as inputs to a neural network answering module which predicts the answer classes.
+In this section we define our Mutant paradigm under this formulation of the VQA task.
+
+    \subsection{Concept of Mutations}
+    Let $X = (Q, I)$ denote an input to the VQA system with true answer $a$.
+    A \textit{mutant} input $X^*$ is created by a small transformation in the image $(Q, I^*)$ or in the question $(Q^*, I)$ such that this transformation leads to a new answer $a^*$, as shown in Figure~\ref{fig:teaser}.
+    There are three categories of transformation $T$ that create the mutant input $X^* = T(X)$, addition, removal, or substitution. 
+    For image mutations, these correspond to addition or removal of objects, and morphing the attributes of the objects, such as color, texture, and lighting conditions. 
+    For instance addition or removal of a person from the image in Figure~\ref{fig:image_mutation} changes the answer to the question ``How many persons are pictured".
+    Question mutations can be performed by addition of a negative word (``no", ``not", etc.) to the question, masking critical words in the question, and substituting an object-word with an antonym or adversarial word.
+    Thus for each sample in the VQA dataset, we can obtain a mutant sample and use it for training.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPERIMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Generating Input Mutations for VQA}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{mutant/figures/mutant_creation.pdf}
+    \caption{Figure illustrating our dataset creation pipeline for image mutations.
+    $m$ object instances of ``critical" object are identified from the question and image, and mutation performed either by removal or color inversion.
+    $A$ represents the answer to the question.}
+    \label{fig:image_mutation}
+\end{figure}
+
+\begin{figure}
+  \begin{minipage}{.31\textwidth}
+    \includegraphics[width=\linewidth]{mutant/figures/lady_lr.png}
+  \end{minipage} \quad
+  \begin{minipage}{.61\textwidth}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{lll}
+        \toprule
+        \textbf{Mutation Type} & \textbf{Question} & \textbf{Answer} \\
+        \toprule
+            Original                    & Is the lady holding the baby?     & Yes \\
+            Substitution (Negation)     & Is the lady not holding the baby? & No \\
+            Substitution (Adversarial)  & Is the cat holding the baby?      & No \\
+            \midrule
+            Original & How many people are there? & Three \\
+            Deletion (Masking) & How many [MASK] are there? & ``Number"\\
+            \midrule
+            Original & What is the color of the man's shirt? & Blue \\
+            Substitution (Negation) & What is not the color of the man's shirt? & Magenta \\
+            \midrule
+            
+            Deletion (Masking)          & Is the [MASK] holding the baby?   & Can't say \\ 
+            \midrule
+            Original & What color is the umbrella ? & Pink \\
+            Deletion (Masking)          & What color is the [MASK]?   & ``color" \\
+        \bottomrule
+    \end{tabular}
+    }
+  \end{minipage}
+  \captionof{table}{Examples of our question mutation.
+The image is shown on the left, and the original question is in the first row of the table.
+Examples of the two types of mutation are shown in the table.}
+\label{tab:q_mut}
+\end{figure}
+    
+    
+
+
+In order to train VQA models under the mutant paradigm, we need a mechanism to create mutant samples.
+Mutations are transformations that act on semantic entities in either the image or the question, in ways that can reliably lead to a new answer.
+For the question, semantic entities are words, while for images, semantic entities are objects.
+It is important to note that our mutation process is automated and does not use the knowledge about the test set distribution in order to create new samples.
+In this section, we delineate our automated generation process for both image and question-mutation.
+
+
+    \subsection{Image Mutations}
+    For image mutation, we first identify critical objects from the image that results in a change in the answer, and either remove instances of these objects (removal) or morph their color (substitution).
+        
+        \paragraph{Removing Object Instances:}
+        Removing an instance of an object class can be either critical to the question (i.e. the answer to the question changes) or non-critical (i.e. answer is unchanged).
+        If an object (or it's synonym or hypernym) is mentioned in the question, we deem it to be critical to the question, otherwise it is deemed non-critical.
+        For each object with $M$ instances in the image, we randomly remove $m$ instances from the image s.t. $m \in \{0, \dots, M\}$ using polygon annotations from the COCO~\citep{lin2014microsoft} dataset.
+        Thus for each image, we get multiple masked images, with pixels inside the instance bounding-box removed, as shown in Figure~\ref{fig:image_mutation}.
+        These masked images are fed to a GAN-based inpainting network~\citep{yu2018generative} that makes the mutant image photo-realistic, and also prevents the model from getting cues from the shape of the mask. 
+        In the case of numeric questions, if $m$ critical objects are removed, the answer to for the mutant image changes from $n$ to $n-m$.
+        For yes-no questions, removal of all critical objects ($m=n$) will flip the answer from ``yes" to ``no", while removing $m<n$ critical objects will not.
+        Note that $m=0$ corresponds to the original image and does not result in a change in the answer.
+        
+        \paragraph{Color Inversion:}
+        For mutations that involve a change in color, we use samples with questions about the color of objects in the image, and change the color of critical objects by pixel-level color inversion in RGB-space.
+        % We identify the critical object in the image and change the color by pixel-level color inversion in RGB-space.
+        The true answer is replaced with the new color of the critical objects.
+        To get objects with new colors, we do not use the knowledge about colors of objects in the world.
+        In some cases, the new colors of the object may not correspond to real-world scenes, thus forcing the model to actually identifying colors, and not answer from language priors, such as ``bananas are yellow".
+    
+    
+    \subsection{Question Mutations}
+    We use three types of question mutations as shown in the example in Table~\ref{tab:q_mut}.
+    We first identify the critical object and then apply template-based question operators similar to~\citep{gokhale2020vqa}.
+    The first operator is negation for yes-no questions, which is achieved by a template based procedure that negates the question by adding a ``no" or ``not" before a verb, preposition or noun phrase.
+    The second is the use of antonyms or adversarial object-words to substitute critical words.
+    The third mutation masks words in the question and thus introduces ambiguity in the question.
+    Questions for which the new answer cannot be deterministically identified are annotated with a broad category label such as \textit{color, location, fruit} instead of the exact answers such as \textit{red, library, apple} which the model cannot be expected to answer since some words have been masked or replaced with adversarial words.
+    Yet, we want the model to be able to identify this broad category of answers even under partially occluded inputs.
+    The answer remains unchanged for mutations with non-critical objects or words.
+    
+    \input{mutant/tables/tab_mutant}    
+    \subsection{Mutant Statistics:}
+    We use the training set of VQA-CP-v2~\citep{vqa-cp} to generate mutant samples.
+    For each original sample, we generate $1.5$ mutant samples on average, thus obtaining a total of 679k samples.
+    Table~\ref{tab:mutant_stats} shows the distribution of our generated mutations with respect to the type of mutation.
+    Addition of mutant samples does not change the distribution of samples per question-type.\footnote{More details about mutant samples are in Supp. material.}
+    
+%     
+    % \subsection{Training with Mutants}
+    % Our method of training with mutant samples relies on three key concepts that supplement the conventional VQA classification task.
+    
+    % \paragraph{Answer Projection:}
+    
+    % \begin{figure*}[t]
+    %     \centering
+    %     \includegraphics[width=0.9\linewidth]{mutant/figures/overall_final.png}
+    %     \caption{Overall architecture of the Mutant Method includes a cross-modal feature extractor, answer projection layer, answering layer and type exposure model}
+    %     \label{fig:overall}
+    % \end{figure*}
+    
+    % The traditional learning strategy of VQA models optimizes for a standard classification task using softmax cross-entropy:
+    % \begin{equation}
+    %     \mathcal{L}_{\scaleto{VQA}{4pt}} = \frac{-1}{N}\sum_{i=1}^{N}\mathit{log}(\mathit{softmax}\big(f_{\mathit{\scaleto{VQA}{4pt}}}(X_i), a_i)).
+    % \end{equation}
+    % QA as a classification task is popular since the answer vocabulary follows a long-tailed distribution over the dataset.
+    % However this formulation is problematic since it does not consider the meaning of the answer while making a decision, but instead learns a correlation between the one-hot vector of the answer-class and input features.
+    % Thus to answer the question ``What is the color of the banana", models learn a strong correlation between the question features and the answer-class for ``yellow", but do not encode the notion of \textit{yellowness} or \textit{greenness} of bananas.
+    % This key drawback negatively impacts the generalizability of these models to raw green or over-ripe black bananas at test-time.
+    
+    % To mitigate this, in addition to the classification task, we propose a training objective that operates in the space of answer embeddings.
+    % The key idea is to map inputs (image-question pairs) and outputs (answers) to a shared manifold in order to establish a metric of similarity on that manifold.
+    % We train a projection layer that learns to project features and answers to the manifold as shown in Figure~\ref{fig:overall}.
+    % We then use Noise Contrastive Estimation~\citep{gutmann2010noise} as a loss function to minimize the distance between the projection of cross modal features $z$ and projection of glove vector $v$ for ground-truth answer $\mathit{a}$, given by:
+    % \begin{equation}
+    %     \mathcal{L}_{\scaleto{NCE}{4pt}} = -log\big(\frac{e^{cos(z_{feat},~~z_{a})}}{\sum_{a_i \in \mathcal{A}} e^{cos(z_{feat},~~z_{a}^i)}}\big),
+    % \end{equation} 
+    % where $z_{\scaleto{feat}{5pt}} = f_{\scaleto{proj}{5pt}}(z)$ and $z_{a} = f_{\scaleto{proj}{5pt}}(glove(a))$, and $\mathcal{A}$ is the set of all possible answers in our training dataset.
+    % It is important to note that this similarity metric is not between the true answer and the predicted answer, but between the projection of input features and the projection of answers, to incorporate context in the answering task.
+    
+    % \paragraph{Type Exposure:}
+    % Linguistic priors in datasets have led models to learn spurious correlations between question and answers. 
+    % For instance, in VQA, the most common answer for ``What sport ..." questions is ``tennis", and for ``How many ..." questions is ``two".
+    % Our aim is to remove this negative bias from the models.
+    % Instead of removing \textit{all bias} from these models, we teach models to identify the question type, and learn which answers can be valid for a particular question type, irrespective of their frequency of occurrence in the dataset.
+    % For instance, the answer to ``How many ..." can be all numbers, answers to ``What color ..." can be all colors, and answers to questions such as ``Is the / Are there ..." questions is either yes or no.
+    % We call this \textit{Type Exposure} since it instructs the model that although a strong correlation may exist between a question-answer pair, there are other answers which are also valid for the specific type of question.
+    % Our Type Exposure model uses a feedforward network to predict question type and to create a binary mask over answer candidates that correspond to this type.
+    
+    
+    % \paragraph{Pairwise-Consistency:}
+    % The final component of Mutant is pairwise consistency.
+    % We jointly train our models with the original and mutant sample pair, with a loss function that ensures that the distance between two predicted answer vectors is close to the distance between two ground-truth answer vectors.
+    % The pairwise consistency loss is given below, where $\mathit{z_a}$ is the vector for answer $\mathit{a}$, $\mathit{m}, GT$ denote mutant sample and ground-truth respectively.
+    % \begin{equation}
+    %     \mathcal{L}_{\scaleto{PW}{4pt}} = ||cos(z_{a_{GT}}, z_{a_{GT}}^m) - cos(z_{a_{pred}}, z_{a_{pred}}^m)||_1 .
+    %     \nonumber
+    % \end{equation}
+    
+    % This pairwise consistency is designed as a regularization that incorporates the notion of semantic shift in answer space as a consequence of a mutation.
+    % For instance, consider the image mutation in Figure~\ref{fig:image_mutation} which changes the ground-truth answer from "two" to "one".
+    % This shift in answer-space should be reflected by the predictor.
+\input{mutant/tables/tab_results}
+\section{Experiments}
+    \subsection{Setting}
+    \paragraph{Datasets:}
+    We train and evaluate our models on VQA-CP-v2.
+    This is a natural choice for evaluating OOD generalization since VQA-CP is a non-i.i.d.~reorganization of the VQA dataset, and was created in order to evaluate VQA models in a setting where language priors cannot be relied upon for a correct prediction.
+    This is because for every question type (65 types according to the question prefix), the prior distribution of answers is different in train and test splits of VQA-CP.
+    We also train and evaluate our models on the VQA-v2~\citep{goyal2017making} validation set, and compare the gap between the imbalanced and non-i.i.d.~setting of VQA-CP against the balanced i.i.d.~setting of VQA.
+    
+    
+    \paragraph{Hyperparameters:}
+    All of our models are trained on two NVIDIA Tesla V100 16GB GPUs for $10$ epochs with batch size of $32$ and learning rate $1e\text{--}5$.
+    Each epoch takes approximately three hours for UpDn and four hours for LXMERT.
+    
+    
+    
+    
+    \subsection{Baseline Models}
+    We compare our method with GVQA~\citep{agrawal2018don}, RUBI~\citep{cadene2019rubi}, SCR~\citep{wu2019self}, LMH~\citep{clark2019don}, CSS~\citep{chen2020counterfactual} as our baselines.
+    Since most of these methods are built with UpDn~\citep{anderson2018bottom} as the backbone, we investigate the efficacy of UpDn under the mutant paradigm.
+    On the other hand, LXMERT~\citep{tan2019lxmert} has emerged as a powerful transformer-based cross-modal feature extractor, and is pre-trained on tasks such as masked language modeling and cross-modality matching, inspired by BERT~\citep{devlin2018bert}.
+    LXMERT is a top performing single-model on multiple vision-and-language tasks such as VQA, GQA~\citep{hudson2019gqa}, ViZWiz~\citep{bigham2010vizwiz}, and NLVR2~\citep{suhr2019corpus}.
+    We therefore use is as a strong baseline for our experiments.
+    LXMERT is representative of the recent trend towards using BERT-like pre-trained models~\citep{lu2019vilbert,su2019vl,li2020unicoder,chen2019uniter} and fine-tuning them on multiple downstream vision and language tasks.
+    Note that we do not use ensemble models for our experiments and focus only on single-model baselines.
+
+    
+    \subsection{Results on VQA-CP-v2 and VQA-v2}
+    Performance on two benchmarks VQA-CP-v2 and VQA-v2 is shown in Table~\ref{tab:results}.
+    We compare existing models against UpDn and LXMERT incorporated into our Mutant method.
+    For the VQA-CP benchmark, our method improves the performance of LXMERT by $23.29\%$, thus establishing a new state of the art on VQA-CP, beating the previous best by $10.57\%$.
+    Our method shows improvements across all categories, with $8.78\%$ on the Yes-No category, $17.75\%$ on Number-based questions, and $9.57\%$ on other questions.
+    We use negation as one of the question mutation operators on yes-no questions, but such questions are not present in the test set.
+    However our model takes advantage of this mutation and improves substantially on yes-no questions.
+    The Mutant method also consistently improves the performance of the UpDn model by $21.98\%$ overall.
+    Note that baseline models AReg, RUBI, SCR, LMH, and CSS all modify UpDn by adding de-biasing techniques. 
+    We show our de-biasing method improves on two SOTA models and outperforms all of the above baselines, unlike previous work which only modifies UpDn.
+    This empirically shows Mutant to be model-agnostic.
+    % paradigm.
+    
+    When trained and evaluated on the balanced i.i.d.~VQA-v2 dataset, our method achieves the best performance amongst methods designed specifically for OOD generalization, with an accuracy of $70.24\%$.
+    This is closest among baselines to the SOTA established by LXMERT, which is trained explicitly for the balanced, i.i.d.~setting.
+    To make this point clear, we report the \textit{gap} between the overall scores for VQA-CP and VQA-v2, following the protocol from~\citet{chen2020counterfactual} in Table~\ref{tab:results}.
+    
+    % \paragraph{Results on VQA-v2 without re-training:}
+    % Additionally, we use our best model trained on VQA-CP and evaluate it on the VQA test standard set without re-training on VQA-v2 data.
+    % The objective here is to evaluate whether models trained on biased data (VQA-CP) and mutant data is able to generalize to VQA-v2 which uses an i.i.d. train-test split.
+    % This gives us an overall accuracy of $67.63\%$ comprising with $88.56\%$ on yes-no questions, $50.76\%$ on number-based questions, and $54.56\%$ on other questions.
+    % This is better than all existing VQA-CP models that are explicitly trained on VQA-v2 (reported in Table~\ref{tab:results}), and thus demonstrates the generalizability of our approach.
+    
+    
+    
+    
+
+    
+    % \subsection{Analysis}
+    % \input{mutant/tables/tab_eff_data}
+    % \input{mutant/tables/tab_ablation}
+    
+        
+    %     \paragraph{Effect of Training with Mutant Samples:\\}
+    %     In this analysis we measure the effect of augmenting the training data with mutant samples on UpDn and LXMERT without any architectural changes.
+    %     The results are reported in Table~\ref{tab:effect_data}.
+    %     Both models improve when exposed to the mutant samples, UpDn by $10.42\%$ and LXMERT by $13.46\%$.
+    %     There is a markedly significant jump in performance for both models for the yes-no and number categories.
+    %     UpDn especially benefits from Mutant samples in terms of the accuracy on numeric questions (a boost of $23.94\%$).
+        
+    %     We also compare our final model when trained only with image mutations and only with question mutations in Table~\ref{tab:effect_data}.
+    %     While this is worse than training with both types of mutations, it can be seen that question mutations are better than image mutations in the case of yes-no and other questions, while image mutations are better on numeric questions.
+        
+    %     \paragraph{Ablation Study:\\}
+    %     We conduct ablation studies to evaluate the efficacy of each component of our method, namely Answer Projection, Type Exposure and Pairwise Consistency, on both baselines, as shown in Table~\ref{tab:ablation}.
+    %     Introduction of Answer Projection significantly improves yes-no performance, while Type Exposure improves performance on other questions.
+    %     We also observe that the pairwise consistency loss significantly boosts performance on numeric questions and yes-no questions.
+    %     Note that there is a minor difference between the original and the mutant sample, and the model needs to understand this difference, which in turn can enable the model to reason about the question and predict the new answer.
+    %     For instance the pairwise consistency loss allows the model to learn the correlation between one missing object and a change in answer from ``two" to ``one" in Figure~\ref{fig:image_mutation}, resulting in an improvement in the counting ability of our VQA model.
+    %     Similarly, the pairwise consistency allows the model to improve on yes-no questions for which the answer changes when a critical object is removed.
+        
+    %     \input{mutant/tables/tab_lmh}
+    %     \paragraph{Effect of LMH Debiasing on Mutant:\\}
+    %     We compare the results of our model when trained with or without the explicit de-biasing method LMH~\citep{clark2019don}.
+    %     LMH is an ensemble-based method trained for \textit{avoiding} dataset biases, and is the most effective among all de-biasing strategies developed for the VQA-CP challenge.
+    %     LMH implements a learned mixing strategy, by using the main model in combination with a bias-only model trained only with the question, without the image.
+    %     The learned mixing strategy uses the bias-only model to remove biases from the main model.
+    %     It can be seen from Table~\ref{tab:lmh} that LMH leads to a drop in performance when used in combination with Mutant.
+    %     This is potentially because in the process of debiasing, LMH ends up attenuating positive bias introduced by Mutant that is useful for generalization.
+    %     \citet{kervadec2020roses} have concurrently shown that de-biasing methods such as LMH indeed result in a decrease in performance on out-of-distribution (OOD) test samples in the GQA~\citep{hudson2019gqa} dataset, mirroring our analysis on VQA-CP shown in Table~\ref{tab:lmh}.
+        
+
+
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% % RELATED WORK
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Related Work} 
+
+%     \paragraph{De-biasing of VQA datasets:}
+%     The VQA-v1 dataset~\citep{antol2015vqa} contained imbalances and language priors between question- answer pairs.
+%     This was mitigated by VQA-v2~\citep{goyal2017making} which balanced the data by collecting complementary images such that each question was associated with two images leading to two different answers.
+%     Identifying that the distribution of answers in the VQA dataset led models to learn superficial correlations,~\citet{vqa-cp} proposed the VQA-CP dataset by re-organizing the train and test splits such that the the distribution of answers per question-type was significantly different for each split.
+
+
+%     \paragraph{Robustness in VQA:}
+%     Ongoing efforts seek to build robust VQA models for VQA for various aspects of robustness.
+%     \citet{shah2019cycle} propose a model that uses cycle-consistency to not only answer the question, but also generate a complimentary question with the same answer, in order to increase the linguistic diversity of questions. 
+%     In constrast, our work generates questions with a different answer.
+%     \citet{selvaraju2020squinting} provide a dataset which contains perception-related sub-questions for each VQA question.
+%     Antonym-consistency has been tackled in~\citet{ray2019sunny}.
+%     Inspired by invariant risk minimization~\citep{arjovsky2019invariant} which links out-of-distribution generalization to invariance and causality,~\citet{teney2020unshuffling} provide a method to identify invariant correlations in the training set and train models to ignore spurious correlations.
+%     \citet{asai2020logic,gokhale2020vqa} explore robustness to logical transformation of questions using first-order logic connectives \textit{and} ($\wedge$), \textit{or} ($\vee$), \textit{not} ($\neg$).
+%     Removal of bias has been a focus of ~\citet{ramakrishnan2018overcoming,clark2019don} for the VQA-CP task.
+%     We distinguish our work from these by amplifying positive bias and attenuating negative bias.
+    
+%     \paragraph{Data Augmentation:}
+%     It is important to note that the above work on data de-biasing and robust models focuses on the language priors in VQA, but not much attention has been given to visual priors.
+%     Within the last year, there has been interest in augmenting VQA training data with counterfactual images~\citep{agarwal2020towards,chen2020counterfactual}. Independently,~\citet{teney2020learning} have also demonstrated that counterfactual images obtained via minimal editing such as masking or inpainting can lead to improved OOD generalization of VQA models, when trained with a pairwise gradient-based regularization.
+%     Self-supervised data augmentation has been explored in recent work~\citep{lewis-etal-2019-unsupervised,fabbri2020template,banerjee2020self} in the domain of text-based question answering.
+%     The mutant paradigm presented in this work is one of the first enable the generation of VQA samples that result in different answers, coupled with a novel architecture and a consistency loss between original and mutant samples as a training objective. 
+    
+    
+%     \paragraph{Answer Embeddings:}
+%     In one of the early works on VQA,~\citet{teney2016zero} use a combination of image and question representations and answer embeddings to predict the final answer. 
+%     \citet{hu2018learning} learn two embedding functions that transform image-question pair and answers to a shared latent space.
+%      Our method is different from this since we use a combination of classification and NCE Loss on the projection of answer vectors, as opposed to a single training objective.
+%     This means that although the predicted answer is obtained as the most probable answer from a set of candidate answers, the NCE Loss in the answer-space embeds the notion of semantic similarity between the answer.
+%     Our Type Exposure model is in principal similar to~\citet{kafle2016answer} who use the predicted answer-type probabilities in a Bayesian framework, while we use it as an additional constraint, i.e. as a regularization for a maximum likelihood objective.
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DISCUSSION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Discussion}
+In this paper, we present a method that uses input mutations to train VQA models with the goal of Out-of-Distribution generalization.
+% Our novel answer projection module trained for minimizing distance between answer and input projections complements the canonical VQA classification task.
+% Our Type Exposure model allows our network to consider all valid answers per question type as equally probable answer candidates, thus moving away from the negative question-answer linguistic priors.
+% Coupled with pairwise consistency, these modules achieve a new state-of-the-art accuracy on the VQA-CP-v2 dataset and reduce the gap between model performance on VQA-v2 data.
+We differentiate our work from methods using random adversarial perturbations for robust learning~\citep{madry2018towards}.
+Instead we view input mutations as \textit{structured perturbations} which lead to a semantic change in the input space and a deterministic change in the output space.
+We envision that the concept of input mutations can be extended to other vision and language tasks for robustness.
+% Concurrent work in the domain of image classification shows that carefully designed perturbations or manipulations of the input can benefit generalization and lead to performance improvements~\citep{chen2020simple,hendrycks2019augmix}.
+% While perception is a cornerstone of understanding, the ability to imagine changes in the scene or language query, and predict outputs for that \textit{imagined} input allows models to supplement ``what" decision making (based on observed inputs) with ``what if" decision making (based on imagined inputs), and this work falls in the la
+% The Mutant paradigm is an effort towards ``what if" decision making. 
+
+

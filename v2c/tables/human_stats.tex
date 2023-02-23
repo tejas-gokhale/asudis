@@ -1,0 +1,30 @@
+    \begin{table*}[!h]
+    
+    \begin{center}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{cc l c c c c c c}
+        &\hphantom& \textbf{Type} & \multicolumn{2}{c}{\textbf{Std. Dev (\%) $\downarrow$}} &  \multicolumn{2}{c}{\textbf{IRAS}(\%) $\uparrow$} & \multicolumn{2}{c}{\textbf{smooth-IRAS} (\%) $\uparrow$}   \\
+        & & & A\textsc{tt}E\textsc{nc}D\textsc{ec} & V2C-Transformer & A\textsc{tt}E\textsc{nc}D\textsc{ec} & V2C-Transformer & A\textsc{tt}E\textsc{nc}D\textsc{ec} & V2C-Transformer \\
+        \hline
+
+        
+        \multirow{3}{*}{\textbf{V2C-Completion}}  
+        && {{\textbf{Intention}}} & 17.99 & 15.02 & 56.02 & 59.80 & 69.43 & 73.36  \\
+        && {{\textbf{Effect}}} & 19.63 & 18.39  & 58.03 & 56.76 & 69.28 & 69.47\\
+        && {{\textbf{Attribute}}} & 10.54 & 9.74  & 69.06 & 71.28 & 80.24 & 81.83\\
+        \hline
+        && {{\textbf{Average}}} & 16.05 & 14.38 & 61.04 & 62.61 & 72.98 & 74.89\\
+        \hline
+        
+        \multirow{3}{*}{\textbf{V2C-Generation}} 
+        && {{\textbf{Intention}}} & 17.60 & 16.27 & 57.84 & 58.47 & 70.66 & 72.10  \\
+        && {{\textbf{Effect}}} & 18.54 & 17.56  & 56.69 & 57.40 & 69.54 & 70.21\\
+        && {{\textbf{Attribute}}} & 15.42 & 13.16  & 59.80 & 62.25 & 73.51 & 76.12 \\
+        \hline
+        && {{\textbf{Average}}} & 17.19 & 15.66 & 58.11 & 59.37 & 71.24 & 72.81\\
+    \end{tabular}
+    }
+    \end{center}
+    \caption{A comparison of the statistics of human evaluation scores for both tasks using the baseline (A\textsc{tt}E\textsc{nc}D\textsc{ec} model vs. our model (V2C-Transformer)}
+    \label{table:stdev}
+\end{table*}

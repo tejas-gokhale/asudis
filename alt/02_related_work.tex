@@ -1,0 +1,33 @@
+\section{Related Work}
+\textbf{Domain Generalization}
+has been explored under both multi-source (MSDG) and single-source (SSDG) settings. Techniques designed for MSDG seek to utilize the multiple domains to perform feature fusion~\citep{shen2019situational}, learning domain-invariant features~\citep{ganin2016domain}, meta-learning~\citep{li2018learning}, invariant risk minimization~\citep{arjovsky2019invariant}, learning mappings between multiple training domains~\citep{robey2021model}, and style randomization~\citep{nam2021reducing}.
+Gulrajani  \textit{et al.}~\citep{gulrajani2021in} provide an extensive comparative study of these approaches and report that simply performing ERM on the combination of source domains leads to the best performance. Many benchmarks have been proposed to evaluate MSDG performance such as PACS~\citep{li2017deeper}, OfficeHome~\citep{venkateswara2017deep}, Digits~\citep{volpi2018generalizing}, and WILDS~\citep{koh2021wilds} which is a compendium of MSDG datasets for various tasks such as image classification, text sentiment classification, text toxicity prediction, etc. In the context of multi-source DG, \citep{zhou2020learning} propose to synthesize novel domains using a conditional generator trained on multiple domains using cycle consistency -- whereas we are primarily interested in the single source setting where such a method may not be feasible. Moreover, we strictly synthesize novel domains as functions of the source domain, and place emphasis on the nature of functions that are learnable during training with a convolutional network with objectives such as an adversarial cost and consistency measures.
+
+SSDG is a harder setting due to the lack of multiple datasets for using the above methods; most work in SSDG has therefore focused on data augmentation.
+Notable among these methods is the idea of adversarial data augmentation -- ADA\citep{volpi2018generalizing} and M-ADA~\citep{qiao2020learning} apply pixel-level additive perturbations to the image in order to fool the classifier.  Resulting images are used as augmented data to train the classifier.
+% is trained over the union of source dataset and adversarial samples.
+RandConv~\citep{xu2020robust} shows that shape-preserving transformations in the form of random convolutions of images lead to impressive performance gains on Digits.
+% benchmark.
+
+\textbf{Robustness to Image Corruptions.}
+There has also been interest in training classifiers that are robust to corruptions that occur in the real world, such as different types of noise and blur, artifacts due to compression techniques, and weather-related environments such as fog, rain, and snow.
+\citep{vasiljevic2016examining,geirhos2018generalisation} show that training models with particular types of corruption augmentations does not guarantee robustness to other unseen types of corruptions or even different severities of corruptions. 
+Hendrycks~ \textit{et al.}~\citep{hendrycks2018benchmarking} curate benchmarks (ImageNet-C and CIFAR-C) to test robustness along a fixed set of corruptions.
+They also provide a benchmark called ImageNet-P which tests robustness against other corruption types such as small tilts and changes in brightness.
+A similar benchmark for corruptions of handwritten digit images, MNIST-C~\citep{mu2019mnist} has also been introduced.
+
+% \paragraph{Robustness to Adversarial Attacks}
+
+\textbf{Data Augmentation}
+has been an effective strategy for improving in-domain generalization using simple techniques such as random horizontal flips and cropping~\citep{he2016deep}, random occlusion or removal of patches~\citep{devries2017improved,zhong2020random}.
+Data augmentation techniques have been shown to improve robustness against adversarial attacks and natural image corruptions~\citep{zhang2018mixup,yun2019cutmix,cubuk2020randaugment}.
+Learning to augment data has been explored in the context of object detection~\citep{zoph2020learning} and image classification~\citep{ratner2017learning,cubuk2019autoaugment,zhang2019adversarial}. 
+% - previous methods for SSDG: naive data aug, 
+
+% - style changes, style normalization 
+
+% - diversity: augmix, randconv, older random projection papers, 
+
+% - adversarial data aug --- talk about how adv training can only provide resiliency to small perturbations 
+
+%  - newer methods when some info is known about target (but no dataset available) -- agat, perturbation sets rts

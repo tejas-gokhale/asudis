@@ -1,0 +1,35 @@
+% \begin{table*}
+%     \centering
+%     \resizebox{\linewidth}{!}{
+%     \begin{tabular}{| l | l | l | l | l | l |}
+%         \hline
+%         \textbf{Mutation Category} & Object Removal & Color Change & Negation & Adversarial Substitution & Word Masking \\
+%         \hline
+%         \textbf{Number of Samples} & 159,899 & 30,759 & 237,611 & 146,814 & 104,666 \\
+%          \hline
+%     \end{tabular}
+%     }
+%     \caption{Distribution of generated mutant samples by category of mutation}
+%     \label{tab:mutant_stats}
+% \end{table*}
+
+
+\begin{table}
+    \centering
+    \small
+    \begin{tabular}{cc}
+        \toprule
+        \textbf{Mutation Category} & \textbf{Number of Samples} \\
+        \midrule
+        Object Removal              & 159,899   \\
+        Color Change                & 30,759    \\
+        Negation                    & 237,611   \\
+        Adversarial Substitution    & 146,814   \\
+        Word Masking                & 104,666   \\
+        % \textbf{Number of Samples} & 159,899 & 30,759 & 237,611 & 146,814 & 104,666 \\
+        \bottomrule
+    \end{tabular}
+
+    \caption{Distribution of generated mutant samples by category of mutation}
+    \label{tab:mutant_stats}
+\end{table}

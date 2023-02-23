@@ -1,0 +1,29 @@
+\begin{table}[!h]
+    \centering
+    \small
+    \caption{Training settings and hyper-parameters for experiments on each benchmark.}
+    \begin{tabular}{@{}l m{0.6in} m{0.6in} m{0.8in}@{}}
+        \toprule
+        \textbf{Variable} & \textbf{Digits} & \textbf{PACS} & \textbf{Office-Home} \\
+        \midrule
+        $f$ architecture    & DigitNet~\cite{volpi2018generalizing} & ResNet18~\cite{he2016deep} & ResNet50~\cite{he2016deep}\\
+        $g$ architecture    & \multicolumn{3}{c}{
+            \vtop{
+                \hbox{\strut \{conv--LeakyRelU\}$_{\times4}$--conv}
+                \hbox{\strut conv with $_{kernel{=}3,stride{=}1,padding{=}1}$}
+                \hbox{\strut LeakyReLU Slope $p=0.2$}
+                }
+            }\\
+        $\rho_0, \phi_0$    & \multicolumn{3}{c}{Kaiming Normal Initialization~\cite{he2015delving}}\\ 
+        % $N$                 & MNIST-10k:10000 & P:\\
+        $T$                 & 10000 & 2000  & 2000  \\
+        $T_{pre}$           & 1250  & 400   & 400   \\
+        $\eta$              & 1e-4  & 0.004 & 0.004 \\
+        $m_{adv}$           & 10    & 10    & 10 \\
+        $\eta_{adv}$        & 5e-6  & 5e-5  & 5e-5 \\
+        $w_r$               & 1.0   & 1.0   & 1.0 \\ 
+        $\lambda_{KL}$      & 0.75  & 0.75  & 0.75 \\
+        \bottomrule
+    \end{tabular}
+    \label{tab:hyperparams}
+\end{table}

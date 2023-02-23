@@ -1,0 +1,20 @@
+\begin{table}
+    \centering
+    % \small
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        \textbf{Method} & \textbf{Source} & \textbf{Size + Position} & \textbf{Material + Position} \\ 
+        \midrule
+        Baseline (ERM)           & 99.81 & 89.92 & 59.90 \\
+        GUD~\citep{volpi2018generalizing}         & 99.94 & 93.69 & 65.03 \\
+        % M-ADA (K=1) & 99.93 & 95.65 &  \\
+        M-ADA~\citep{qiao2020learning}      & 99.96 & 94.52 & 65.50 \\
+        Ours        & 99.97 & 95.22 & 69.49 \\ 
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Classification accuracy for color-classification on CLEVR-Singles. 
+    Source and target sets are split on \textit{size+position} attribute for the third column, and \textit{Material+Position} for the fourth column.}
+    \label{tab:clevr_results}
+\end{table}

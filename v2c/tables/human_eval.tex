@@ -1,0 +1,42 @@
+    \begin{table*}[t]
+        \begin{center}
+        \resizebox{0.9\linewidth}{!}{
+        \begin{tabular}{c c c c c c c}
+            \toprule 
+            \textbf{Task} & \multicolumn{1}{c}{\textbf{Model}} & \multicolumn{1}{c}{\textbf{Effect}} & \multicolumn{1}{c}{\textbf{Attribute}} & \multicolumn{1}{c}{\textbf{Intention}} & \multicolumn{1}{c}{\textbf{Average}} & 
+            \multicolumn{1}{c}{\textbf{Caption}}\\
+            \hline
+            %% E2C
+            \multirow{2}{*}{
+                \rotatebox[origin=c]{0}{
+                    \shortstack{\textbf{   {E2C-Completion}}\\(Text-Only)}}}
+             & 9E\textsc{nc}9D\textsc{ec}~\cite{sap2018atomic} &  44.23 & 52.01 &  49.72 & 49.47 & -\\
+             & C\textsc{omet}~\cite{bosselut2019comet} &  54.98 &  56.28 & 66.32 & 59.22 & -\\
+             \hline
+             %% V2C Completion
+             \multirow{2}{*}{\rotatebox[origin=c]{0}{\textbf{   {V2C-Completion}}}}
+            %  & Attention-Enc-Dec~\cite{gao2017video} &  66.09 & 53.40 & 56.27 & 58.59 \\
+             & Att-Enc-Dec\cite{gao2017video} &  {66.09} & {52.40} & {56.26} & {58.25} & -\\
+             & VCT-Completion  &  \textbf{\underline{66.83}} & \textbf{{63.45}} & \textbf{\underline{67.37}} & \textbf{{65.88}} & -\\
+             %% V2C Generation
+             \hline
+             \multirow{2}{*}{\rotatebox[origin=c]{0}{\textbf{   {V2C-Generation}}}}
+            %  & Attention-Enc-Dec~\cite{gao2017video} & 58.56  & \underline{74.87} & 65.55 & 66.33 \\
+            & Att-Enc-Dec\cite{gao2017video} & {55.93} & \textbf{\underline{74.87}} & {65.54} & {64.78} & \textbf{\underline{74.67}}\\
+             & VCT-Generation & \textbf{{62.99}} & 73.54 & \textbf{{66.74}} & \textbf{\underline{67.76}} & 73.17\\
+            %  \hdashline
+            %  \textbf{   {Gold Annotations}} & V2C Dataset Annotations & 82.67	& 89.60	& 86.60 & 86.29 & 93.21\\normalized
+            \hline
+            \textbf{   {Gold Annotations}} & V2C Dataset & \textit{75.19}	& \textit{83.03}	& \textit{80.11} & \textit{79.44} & \textit{95.01}\\
+            \bottomrule
+        \end{tabular}
+        }
+        \end{center}
+           \caption{Human evaluation scores for V2C.
+                % \textbf{   {V2C-Completion}} represents the commonsense completion task, and \textbf{   {V2C-Generation}} is the caption generation with commonsense.
+                % We present comparisons to the \textbf{   {E2C}} tasks from  ~\protect\cite{bosselut2019comet,sap2018atomic}
+                Captions are an input for the \textbf{   {V2C-Completion}} task, and generated for the \textbf{   {V2C-Generation}} task.
+                The best model is given in bold, while the overall best is underlined.
+        }
+        \label{tab:humanevaluation}
+    \end{table*} 

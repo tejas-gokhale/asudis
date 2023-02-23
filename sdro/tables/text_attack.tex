@@ -1,0 +1,61 @@
+% \begin{table}[t]
+%     \centering
+%     \resizebox{\linewidth}{!}{
+%     \begin{tabular}{@{}cl ccccccc@{}}
+%         \toprule
+%         % \multirow{2}{*}{\textbf{Model}} & \multicolumn{7}{c}{\textbf{Text Attack Categories}} \\
+%         % \textbf{Dataset}
+%         & \textbf{Model} & \textbf{CR} & \textbf{CS} & \textbf{CL} & \textbf{EDA} & \textbf{Emb} & \textbf{WN} & \textbf{Avg.}\\
+%         \midrule
+%         % LX          & 74.38 & 72.45 & 70.72 & 67.73 & 71.26 & 72.12 & 71.44 \\
+%         % LX + SDRO   & 70.18 & 67.96 & 65.94 & 64.29 & 69.05 & 66.49 & 67.32 \\
+%         % \midrule  
+%         % UN          & 75.35 & 75.44 & 73.99 & 69.02 & 74.96 & 73.45 & 73.70 \\
+%         % UN + SDRO   & 75.71 & 75.35 & 71.14 & 68.84 & \underline{76.44} & 75.24 & 73.79 \\
+%         % \midrule 
+%         \multirow{2}{*}{NLVR$^2$} 
+%         & VILLA          & 77.45 & 74.38 & \underline{74.42} & 69.62 & 75.45 & 75.87 & 74.52 \\
+%         & \quad + SDRO   & \underline{78.51} & \underline{77.20} & 72.06 & \underline{71.08} & 75.77 & \underline{76.41} & \textbf{75.17}\\
+%         \midrule
+%         \multirow{2}{*}{VIOLIN} 
+%         & HERO          & 66.08  & 63.00 & 68.58 & 60.89 & 63.81 & 63.38 & 64.29 \\
+%         & \quad + SDRO   & 68.70 & 64.95 & 68.96 & 61.32 & 65.54 & 64.61 & 65.68 \\
+%         \midrule
+%         \multirow{2}{*}{\shortstack{VQA \\Yes/No}} 
+%         & VILLA          & 80.49 & 75.74 & 84.87 & 74.64 & 78.63 & 76.39 & 78.45 \\
+%         & \quad + SDRO   & 85.99 & 84.52 & 84.10 & 87.02 & 84.25 & 84.03 & 84.99 \\
+%         \bottomrule
+%     \end{tabular}
+%     }
+%     \caption{Performance on ``text-attack''~\cite{morris2020textattack} versions of the NLVR$^2$, VIOLIN, and VQA-Yes/No test sets. CR: CLARE; CS: CharSwap, CL: Check-List, EDA: Easy Data Augmentation, Emb: Embedding-based, WN: WordNet-based.}
+%     \label{tab:text_attack}
+% \end{table}
+
+\begin{table}
+    \centering
+    % \small
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}cl ccccccc@{}}
+        \toprule
+        & \textbf{Model} & \textbf{CR} & \textbf{CS} & \textbf{CL} & \textbf{EDA} & \textbf{Emb} & \textbf{WN} & \textbf{Avg.}\\
+        \midrule
+        \multirow{2}{*}{NLVR$^2$} 
+        & VILLA          & 77.5 & 74.4 & \underline{74.4} & 69.6 & 75.5 & 75.9 & 74.5 \\
+        & \quad + SDRO   & \underline{78.5} & \underline{77.2} & 72.1 & \underline{71.1} & 75.8 & \underline{76.4} & \textbf{75.2}\\
+        \midrule
+        \multirow{2}{*}{VIOLIN} 
+        & HERO          & 66.1  & 63.0 & 68.6 & 60.9 & 63.8 & 63.4 & 64.3 \\
+        & \quad + SDRO   & 68.7 & 65.0 & 69.0 & 61.3 & 65.5 & 64.6 & 65.7 \\
+        \midrule
+        \multirow{2}{*}{\shortstack{VQA \\Yes/No}} 
+        & VILLA          & 80.5 & 75.7 & 84.9 & 74.6 & 78.6 & 76.4 & 78.5 \\
+        & \quad + SDRO   & 86.0 & 84.5 & 84.1 & 87.0 & 84.3 & 84.0 & 85.00 \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Performance on ``text-attack'' of NLI test set.
+    % ~\cite{morris2020textattack} versions of the NLVR$^2$, VIOLIN, and VQA-Yes/No test sets. 
+    % CR: CLARE, CS: CharSwap, CL: Check-List, EDA: Easy Data Aug, Emb: Embedding-based, WN: WordNet-based.
+    }
+    \label{tab:text_attack}
+\end{table}

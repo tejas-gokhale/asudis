@@ -1,0 +1,29 @@
+\begin{table*}[t]
+    \centering
+    % \small
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l ccc ccc ccc ccc c@{}}
+        \toprule
+        \textbf{Method} & \textbf{A$\rightarrow$C} & \textbf{A$\rightarrow$P} & \textbf{A$\rightarrow$R} & \textbf{C$\rightarrow$A} & \textbf{C$\rightarrow$P} & \textbf{C$\rightarrow$R} & \textbf{P$\rightarrow$A} & \textbf{P$\rightarrow$C} & \textbf{P$\rightarrow$R} & \textbf{R$\rightarrow$A} & \textbf{R$\rightarrow$C} & \textbf{R$\rightarrow$P} & \textbf{Average}\\
+        \midrule
+        ERM                                 & 42.61 & 59.18 & 69.45 & 48.37 & 56.09 & 59.38 & 46.07 & 40.18 & 68.19 & 63.12 & 45.13 & 74.34 & 56.00 \\
+        AugMix~\citep{hendrycks2019augmix}   & 45.31 & 61.88 & 71.88 & 49.30 & 58.93 & 62.24 & 50.04 & 42.59 & 71.51 & 64.10 & 47.56 & 75.95 & 58.44 \\
+        RandConv~\citep{xu2020robust}    & 43.98 & 55.28 & 67.31 & 45.49 & 56.58 & 59.03 & 43.80 & 43.19 & 66.50 & 57.62 & 48.26 & 72.97 & 55.00\\
+        SagNet~\citep{nam2021reducing}   & 42.18 & 56.03 & 67.34 & 46.68 & 53.89 & 57.88 & 45.49 & 40.09 & 67.11 & 61.39 & 48.32 & 72.79 & 54.93\\
+        \midrule 
+        ALT$_{g-only}$                  & 47.26 & 61.14 & 71.21 & 48.88	& 57.81 & 60.99	& 48.15 & 46.70 & 69.30 & 64.85 & 52.84 & 76.28 & \textbf{58.78} \\
+        ALT$_{RandConv}$                & 48.33 & 61.19 & 71.75 & 50.13 & 58.82 & 62.26 & 49.21 & 47.03 & 70.53 & 64.88 & 53.10 & 76.07 & \textbf{59.44}\\
+        ALT$_{AugMix}$                  & 48.06 & 61.16 & 71.12 & 50.43 & 58.84 & 61.84 & 49.32 & 47.55 & 70.64 & 64.86 & 53.27 & 76.29 & \textbf{59.45} \\
+        \bottomrule 
+    \end{tabular}
+    }
+    \caption[SSDG Office-Home]{Single-source domain generalization accuracy (\%) on Office-Home~\citep{venkateswara2017deep} 
+    % with mean and standard deviation 
+    over five repetitions. 
+    \textit{X$\rightarrow$Y} implies X is the source dataset and Y is the target dataset.
+    \textit{R: real; A: art; C: clipart; P: product.}
+    Performance is reported as mean of 5 repetitions\footnotemark[1].
+    % ; detailed results with standard deviation values are in the supplementary material.
+    }
+    \label{tab:results_officehome}
+\end{table*}

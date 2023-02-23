@@ -1,0 +1,22 @@
+\begin{table}
+    \centering
+    % \small
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l@{\extracolsep{\fill}}cccc@{}}
+        \toprule
+        \textbf{Method} & \textbf{R} & \textbf{T} & \textbf{S} & \textbf{RTS}\\
+        \toprule
+        B & 84.44 & 27.67 & 95.76 & 21.91 \\
+        GUD~\citep{volpi2018generalizing} & 86.08 & 29.09 & 97.89 & 23.10 \\
+        % MADA (K=1) & 87.69 & 28.32 & 98.47 & 22.62 \\
+        MADA~\citep{qiao2020learning} & 87.37 & 29.25 & \textbf{98.32} & {22.68} \\
+        PS~\citep{wong2020learning} & \textbf{87.86} & 45.36 & 96.00 & 39.38 \\
+        Ours ($T_{aug}\text{=}30\%$) & \underline{84.93} & \underline{\textbf{52.95}} & \underline{96.11} & \textbf{\underline{41.43}} \\
+        % PS(\%aug=50) & 87.86 & 45.36 & 96.00 & 39.38 \\
+        % Ours (\%aug=50) & 86.35 & 61.07 & 95.76 & 47.59\\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Results on the MNIST-RTS robustness benchmark for rotation (R), translation (T), scaling (S), and random combination (RTS).}
+    \label{tab:mnist_geom}
+\end{table}

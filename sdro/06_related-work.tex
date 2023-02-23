@@ -1,0 +1,21 @@
+% %%%%%%%%% RELATED WORK
+% \section{Related Work}
+
+% \textbf{Adversarial Training} (AT)
+% has been studied under a game-theoretic~\citep{dalvi2004adversarial} and
+% min-max setup~\citep{madry2018towards}.
+% \citet{volpi2018generalizing} use AT to adversarially augment image classification datasets and show improved domain generalization for digit classification.
+% \citet{wong2020learning,gokhale2020attribute} modify AT for real-world adversaries beyond norm-bounded perturbations.
+% AT has been used for text classification with LSTMs~\citep{miyato2016adversarial} and for pretraining transformer-based models by adding label-preserving adversarial perturbations to embeddings of word tokens~\citep{zhu2020freelb,jiang2020smart,gan2020large}
+% Contrastive examples have been explored, collected from humans~\citep{agrawal2018don}, negative mining~\citep{shi2018learning}, or synthetic generation~\citep{agarwal2020towards,chen2020counterfactual,gokhale2020mutant,teney2020learning}.
+
+% \textbf{Robustness in V\&L}
+% has been explored for VQA, such as performance under prior probability shift~\citep{agrawal2018don} and domain adaptation~\citep{chao2018cross,xu2019open}, along with robustness for implied questions~\citep{ribeiro2019red} and novel compositions~\citep{johnson2017clevr,agrawal2017c}, and robustness to logical connectives (including negation)~\citet{gokhale2020vqa}.
+% \citet{teney2020learning} have shown that many V\&L, image classification, and sentiment analysis models are sensitive to image editing.
+% There has been a recent effort of model-in-the-loop dataset collection to guide humans to create harder VQA samples~\citep{li2021adversarial,sheng2021human}.
+
+% \textbf{Robustness in NLP:}
+% Generation of SP adversarial examples 
+% \citep{jia2017adversarial,ribeiro2018semantically,iyyer2018adversarial,alzantot2018generating}, and approaches to defend against word substitution~\citep{jia2019certified} have been explored.
+% Evaluation datasets have also been proposed for textual entailment that are manually crafted~\citep{gardner2020evaluating} or template-based~\citep{mccoy2019right,glockner2018breaking,naik2018stress}.
+% Our method uses automated linguistically-informed SI and SP transforms for both training and inference.

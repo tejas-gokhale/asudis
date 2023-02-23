@@ -1,0 +1,45 @@
+\begin{algorithm}
+    \caption{Attribute-Guided Adversarial Training}
+    \label{alg:adv_algo}
+    \small
+    % \begin{algorithmic}[0]
+    %     % \REQUIRE $n \geq 0 \vee x \neq 0$
+    %     \State \textbf{Input:} Source dataset $\mathcal{D}_S=\{\mathbf{x}_t,y_t\}_{i=t}^T$
+    %     \State \textbf{Output:} learned weights $\theta$ 
+    % \end{algorithmic}
+    \begin{algorithmic}[1]
+        \State \textbf{Initialize:} $\theta \gets \theta_0, \mathcal{D}^{aug}_S\gets\mathcal{D}_S$
+        \ForEach{$n=1\dots N_{epochs}$}
+            \If{$n < N_{pre}$}
+                \ForEach{$t=1:T$}
+                    \State $\theta \gets \theta - \eta\triangledown\ell_{cls}(\theta;(\mathbf{x}_t, y_t))$
+                \EndForEach
+            \Else
+                \If{$n~\text{mod }N_{aug} = 0$}
+                    \ForEach{$t=1\ldots T_{aug}$}
+                        \State sample ${(\mathbf{x}_t, y_t)}_{t=1}^{T_{aug}}$ from $\mathcal{D}_S$
+                        \State $z_t, \hat{y}_t = H(\mathbf{x_t})$
+                        \State \textbf{Initialize:} $\alpha_t^{gen}$
+                        \ForEach{$i=1\ldots M$}
+                            \State $z^{gen}_t, \hat{y}^{gen}_t = H(\mathbf{x}_t, \alpha_t^{gen})$
+                            \State $\mathbf{x}_t^{gen} \gets f(\mathbf{x}_t, \alpha_t^{gen})$
+                            \State $\alpha_t^{gen} \gets \alpha_t^{gen} - \mu\triangledown (\cdot\ell_{cls}-\beta\cdot \ell_{cons})$
+                        
+                        \EndForEach
+                        
+                        \State $\mathcal{D}_S^{aug} \gets \mathcal{D}_S^{aug} \cup \mathbf{x}_t^{gen}$
+                    \EndForEach
+                \Else
+                    \ForEach{$(\mathbf{x}_t, y_t) \in \mathcal{D}^{aug}_S$}
+                         \State $\theta \gets \theta - \eta\triangledown\ell(\theta;(\mathbf{x}_t, y_t))$
+                    \EndForEach
+                \EndIf
+            \EndIf
+        \EndForEach
+    \end{algorithmic}
+\end{algorithm}
+%     
+% \State $\ell_{feat} = $ 
+% \State $\ell_{attr} = $ 
+% \State $L = \ell_{feat}(z_t, z_t^{aug}) + \ell_{cls}(\theta;(X_t, y_t))$
+% \State $\ell_{tot} = \alpha\cdot\ell_{dis}(y_t, \hat{y}_t, \hat{y}_t^{aug}) - \beta c(z_t, z_t^{aug}, b_t, b_t^{aug})$

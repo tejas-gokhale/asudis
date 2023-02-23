@@ -1,0 +1,18 @@
+\begin{table}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l ccc c ccc c ccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{3}{c}{SP only} & \hphantom & \multicolumn{3}{c}{SI Only} & \hphantom & \multicolumn{3}{c}{Both} \\ 
+         \cmidrule{2-4} \cmidrule{6-8}  \cmidrule{10-12}
+         & Clean & SP & SI && Clean & SP & SI && Clean & SP & SI \\
+        \midrule
+        Data-Aug & 76.07 & 74.89 & 35.77 && 69.51 & 53.68 & 94.89 && 78.34 & 72.11 & 84.44 \\
+        SW-SDRO & 79.79 & 76.93 & 30.72 && 79.27 & 55.53 & 88.76 && 79.23 & 69.23 & 67.35 \\
+        GW-SDRO & 79.46 & 75.72 & 33.04 && 79.13 & 54.31 & 93.25 && 79.41 & 68.67 & 84.54 \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Comparison of performance when only SP, only SI, or both types of transformations are performed.}
+    \label{tab:analysis_si_sp_all}
+\end{table}

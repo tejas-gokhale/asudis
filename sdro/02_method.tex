@@ -1,0 +1,91 @@
+%%%%%%%%% SDRO
+\section{Method} 
+\input{sdro/tables/sisp_examples}
+
+\subsection{Preliminaries}
+Consider a training distribution $P_{tr}$ consisting of inputs $\x$ and labels $\y$.
+For VLI, input $\x$ is multi-modal (visuals and text), with labels $\y \in \{\texttt{True}, \texttt{False}\}$.
+Under the empirical risk minimization (ERM), the following risk is minimized:
+\begin{equation}
+    \mathcal{R}_{ERM} = \E_{(\x, \y) \sim P_{tr}}  ~\ell(f(\x; \theta), \y).
+    \label{sdro:eq:erm}
+\end{equation}
+ERM provides generalization guarantees~\citep{vapnik1991principles} for i.i.d.\ test samples, but not for out-of-distribution or adversarial examples.
+
+\paragraph{Distributed Robust Optimization (DRO)}~\citep{pmlr-v80-hu18a,sagawa2020distributionally} searches for loss-maximizing perturbations of the input within an $\epsilon$-divergence ball around $P_{tr}$ and minimize the risk over such perturbed distributions.
+\begin{equation}
+    \mathcal{R}_{DRO}=\underset{P:D(P, P_{tr})<\epsilon}{sup}\E_{(\x, \y) \sim P} \ell(f(\x; \theta), \y).
+    \label{sdro:eq:std_adv}
+\end{equation}
+The solution to Equation~\ref{sdro:eq:std_adv} guarantees robustness inside such $\epsilon$-bounded distributions $P$.
+The inner maximization is typically solved using gradient-based methods~\citep{madry2018towards} over additive perturbations $\delta$ such that $\x+\delta$ fools the classifier.
+
+
+\subsection{SDRO}
+\label{sec:sdro}
+For sentence inputs, additive perturbations are intangible and may result in ambiguity.
+An alternative approach is to consider \textit{groups} or perturbations sets $\mathcal{G}$ representing certain subpopulations or semantic categories within the data distribution.
+For text inputs, we consider perturbation sets that can be created using semantic sentence transformations such as those shown in Table~\ref{tab:sisp_examples}, as the \textit{groups} (or equivalently, \textit{transformations}).
+These transformations $g(x, y) = (\x_g, \y_g)$ are of two types:
+semantics-preserving (SP) if $\y_g{=}\y$, or semantics-inverting (SI) if $\y_g \neq \y$.
+The ability of generating adversarial samples with inverted meanings is a key distinction between adversarial training (AT) and SDRO.
+While AT is restricted to SP perturbations inside an $\epsilon$ norm-ball, SDRO can impart larger linguistic perturbations (both SI and SP) beyond the norm-ball, by minimizing the worst-case expected risk over these groups:
+\begin{equation}
+    \mathcal{R}_{SDRO} = \underset{g\in\mathcal{G}}{sup}\E_{(\x, \y) \sim g} ~\ell(f(\x; \theta), \y).
+    \label{sdro:eq:sdro}
+\end{equation}
+
+
+\paragraph{Implementation.}
+As a first step of SDRO, we randomly sample a subset $\mathcal{C}$ of the training dataset $\mathcal{D}$ s.t. $|\mathcal{C}|/|\mathcal{D}|=T$. 
+We find adversarial samples after every epoch and create an augmented dataset $\mathcal{D}_{aug}$ which contains $(1-T)|\mathcal{D}|$ original samples and $T|\mathcal{D}|$ adversarial samples, thus retaining the size of the training dataset.
+We define $\ell_g$ as the classification loss for a transformed sample $(\x_g, \y_g)$:
+\begin{equation}
+    \ell_g(\x, \y) \triangleq \ell(f(\x_g), \y_g),~\forall g{\in}\mathcal{G}.
+    \label{sdro:eq:ell_G}
+\end{equation}
+We design two variants of SDRO: Sample-Wise (SW) and Group-Wise (GW).
+\paragraph{Sample-Wise SDRO:}
+    In this greedy version of SDRO, for every input $\x$, a transformation that maximally fools the classifier: $g^*{=}\argmax_{g\in\mathcal{G}} \ell_g(\x, \y)$, is added to the set of adversarial examples $\mathcal{D}_{adv}$. The model is then fine-tuned on the augmented dataset.
+    \begin{align}
+        \mathcal{D}_{adv} &= \{ g^*(\x, \y) \colon (\x, \y){\in}~\mathcal{C}\}, \\
+        \mathcal{D}_{aug} &= \mathcal{D}_{1:(1-T)|\mathcal{D}|} \cup \mathcal{D}_{adv}
+        \label{sdro:eq:d_aug}
+    \end{align}
+    However, this greedy approach is susceptible to the model's biases towards certain transformations.  
+    For instance, if negation and verb-antonym are universally hard for most sentences, i.e., result in the maximum classifier loss amongst all  transformations $g$, then $\mathcal{D}_{adv}$ will be dominated by these groups, resulting in an unbalanced training set.
+    
+\paragraph{Group-Wise SDRO}
+is devised to mitigate against the model becoming biased towards the ``hardest'' transformations.
+    Using Equation~\ref{sdro:eq:ell_G}, we calculate the transformation losses for each transformation of each sample in a training batch, yielding a set of classifier losses per ``group'' $g$:
+    \begin{equation}
+        L_g \colon \mathcal{C} \rightarrow \R;
+        ~L_g = \{ \ell_g(\x, \y) \colon (\x, \y) \in \mathcal{C}\}.
+    \end{equation}
+    We obtain the top-k losses per group $g$ as:
+    \begin{equation}
+        L_G^k = \argmax_{\Lambda \subset L_G, |\Lambda| = k} \sum_{\lambda\in\Lambda} \lambda,
+        ~~\text{where~}k = \floor*{\frac{|\mathcal{C}|}{|\mathcal{G}|}}.
+        \label{sdro:eq:pergroup_losses}
+    \end{equation}
+    Then 
+    $\mathcal{D}_{adv}$ is compiled as the union of per-group adversaries using Equation~\ref{sdro:eq:pergroup_losses}, and augmented to the training dataset using Equation~\ref{sdro:eq:d_aug}.
+    
+\paragraph{Test-Time Ensembling of Predictions.}
+Semantic transformations $g$ allow us to obtain multiple ``views'' $\x_g = g(\x)$ of the input, and the corresponding predictions $\hat{\y}_g = f(\x_g)$.
+We ensemble these predictions and the original prediction $\hat{\y}=f(\x)$ with a simple weighted-average.
+Note that $\mathcal{G}$ contains both SP and SI transformations, $\mathcal{G}_{SP}$ and $\mathcal{G}_{SI}$. 
+Since the expected label for $\mathcal{G}_{SI}$ is flipped, during ensembling we use the flipped probabilities $1{-}f(\x_g)$.
+The ensembled prediction is:
+\begin{equation}
+\hat{\y}_{e} = \alpha f(\x) +
+\frac{1{-}\alpha}{2}\sum_{\mathclap{g\in\mathcal{G}_{SP}}}{\frac{f(\x_g)}{|\mathcal{G}_{SP}|}} + \frac{1{-}\alpha}{2}\sum_{\mathclap{g\in\mathcal{G}_{SI}}}\frac{1{-}f(\x_g)}{|\mathcal{G}_{SI}|}.
+\label{sdro:eq:ensembling}
+\end{equation}
+This ensembling is in principle similar to~\citet{chai2021ensembling} who train a generative model $g$ to output different views of an image, and tune $\alpha$ over a validation set.
+In our work, $g$ are semantic sentence transformations, and a simple intuitive choice of $\alpha{=}0.5$ gives equal weight to the original sample and the SISP versions.
+We find that:
+\begin{enumerate}[nosep,noitemsep,leftmargin=*]
+\item training models with SDRO using SISP transformations improves results on VLI tasks, and
+\item ensembling predictions of SDRO at test-time using Equation~\ref{sdro:eq:ensembling} further improves results.
+\end{enumerate}

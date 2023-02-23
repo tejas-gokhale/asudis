@@ -1,0 +1,378 @@
+
+
+\begin{abstract}
+Captioning is a crucial and challenging task for video understanding.  
+In videos that involve active agents such as humans, the agent's actions can bring about myriad changes in the scene. 
+Observable changes such as movements, manipulations, and transformations of the objects in the scene, are reflected in conventional video captioning.
+Unlike images, actions in videos are also inherently linked to social aspects such as intentions (why the action is taking place), effects (what changes due to the action), and attributes that describe the agent. 
+Thus for video understanding, such as when captioning videos or when answering questions about videos, one must have an understanding of these commonsense aspects.
+We present the first work on generating \textit{commonsense} captions directly from videos, to describe latent aspects such as intentions, effects, and attributes.
+We present a new dataset ``Video-to-Commonsense (V2C)" that contains $\sim9k$ videos of human agents performing various actions, annotated with 3 types of commonsense descriptions.
+Additionally we explore the use of open-ended video-based commonsense question answering (V2C-QA) as a way to enrich our captions.
+Both the generation task and the QA task can be used to enrich video captions.
+\end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% INTRODUCTION
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Introduction}
+\begin{figure*}
+    \centering
+    \includegraphics[width=0.9\linewidth]{v2c/fig/teaser_single.pdf}
+    \caption{Comparison of conventional video captioning with our commonsense-enriched captioning. Our captions describe intention behind the action ({\color{red}red}), attribute of the agent ({\color{blue}blue}), and effect of the action on the agent ({\color{green}green}).}
+    \label{fig:pipeline}
+\end{figure*}
+
+When humans watch videos they can typically understand and reason about various aspects of the scene beyond the visible objects and actions.
+This involves understanding that some objects are \textit{active agents} that not only perform actions and manipulate objects, but are motivated by intentions, have pre-conditions, and that their actions have an effect on the world and their own mental states.
+For instance, in analyzing the video clip in Figure~\ref{fig:pipeline}, humans employ various capabilities such as perception, reasoning, inference, and speculation, to come up with a description for the observable sequence of events, but also reason about latent aspects such as the intention of the group of runners \textit{``to win the medal"}, the effect of being \textit{``congratulated at the finish line"}, and the attribute \textit{``athletic"}.
+
+The above example also illustrates that recognition of objects, actions, and events is often not enough; understanding causal relationships, social interactions, and commonsense aspects behind them provides context and a more semantic interpretation of the video~\cite{gupta2009understanding}.
+A model that can provide such detailed interpretations facilitates answering inferential questions, such as \textit{``Will the player get angry later?"}.
+However, existing visual understanding systems are unable to perform such tasks that require speculative reasoning.
+A critical missing element in complex video understanding is the capability of performing commonsense inference, especially a generative model.
+Existing efforts seek to find textual explanations or intentions of human activities as a classification task~\cite{vondrick2016predicting} or a vision-to-text alignment problem~\cite{zhu2015aligning}.
+
+In this paper we propose the \textbf{V}ideo to \textbf{C}ommonsense (V2C) framework to generate visually grounded commonsense descriptions about the underlying event in the video, enriching the factual description provided by a caption.
+Under this framework a system is expected to generate captions as well as three types of commonsense descriptions (intention, effect, attribute) directly from an input video.
+The V2C model can also be used as a building block for downstream tasks such as video question answering for questions requiring commonsense.
+Inspired by~\citep{bosselut2019comet}, our model -- the ``V2C-Transformer" utilizes: (1) a video encoder to extract global representations of the video, (2) a transformer decoder that generates captions and commonsense descriptions, and (3) a cross-modal self-attention module that exploits joint visual-textual embeddings.
+
+We curate the V2C dataset for training and benchmarking models on this task.
+We adopt the MSR-VTT video description dataset~\citep{xu2016msr} as a source of videos and captions.
+We first utilize the A\textsc{tomic} machine commonsense dataset~\cite{sap2018atomic} to get a list of candidate commonsense texts (intentions, effects, and attributes), and rank these using a BERT-based~\cite{devlin2018bert} model.
+Since these candidates are retrieved without using the video and may not be accurate, we instruct humans to watch the videos and select, remove, or rewrite the texts retrieved from A\textsc{tomic}.
+The text retrieved by A\textsc{tomic} helps our human annotators to understand the format of desired annotations, and also gives them a list of suggestions.
+The human component in our annotation procedure makes our data visually grounded and relevant, linguistically diverse, and natural.
+
+We additionally explore the use of our V2C-Transformer architecture for a open-ended video question answering task, where the questions are about commonsense aspects from the video.
+For this, we create a QA addendum of the V2C dataset called V2C-QA.
+By asking questions about the latent aspects in the video, our models are able to enrich caption generation with three specific types of commonsense knowledge.
+
+Our contributions are summarized below:
+\begin{enumerate}[noitemsep,nosep]
+    \item We formulate the ``V2C" task for enriching video captioning by generating descriptions of commonsense aspects.
+    \item We curate a video dataset annotated with captions and commonsense descriptions.
+    \item We present our V2C-Transformer architecture that generates relevant commonsense descriptions, and serves as a strong baseline.
+    \item We pose V2C as a video question answering task and show that it can assist commonsense caption generation.
+\end{enumerate}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% V2C
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\section{Video to Commonsense (V2C)}
+\paragraph{Problem Formulation:} 
+Consider a video $\mathit{V}$ consisting of $N_v$ frames described by sentence $\mathit{S}$. 
+Our Video-to-Commonsense (V2C) framework can be used for generating commonsense descriptions $\mathit{C}$ under two settings.
+In the first setting (\textbf{V2C-Completion}), we use ground-truth captions to guide commonsense-enriched caption generation.
+This task can be viewed as providing supplementary explanations to the caption.
+In the second setting (\textbf{V2C-Generation}), we first learn to generate captions from videos, $\mathbf{g}(\mathit{V})$, and then use them to generate commonsense descriptions.
+\begin{align}
+    \small
+    \begin{split}
+        \textbf{V2C-Completion}  \quad \mathit{C} &= \mathbf{f}(\mathit{V}, \mathit{S}).\\
+        \small
+        \textbf{V2C-Generation}  \quad \mathit{C} &= \mathbf{f}(\mathit{V}, \mathbf{g}(\mathit{V})).
+    \end{split}
+\end{align}
+
+    \subsection{V2C-Transformer}
+    \begin{figure*}[t]
+        \centering
+        \includegraphics[width=.9\textwidth]{./v2c/fig/architecture.pdf}
+        \caption{
+        The V2C-Transformer model architecture contains:
+        \textbf{(a)} Video Encoder designed to take video frames as input and encode them into frame-wise representations, 
+        \textbf{(b)} Decoder module consisting of a Caption Decoder and a Commonsense Decoder, and
+        \textbf{(c)} Transformer Decoder module containing a stack of $N$ consecutive transformer blocks (shown inside the dashed area).
+        }
+        \label{fig:architecture}
+    \end{figure*}
+    
+    The proposed Video2Commonsense Transformer is a cross-modal model that generates captions and commonsense-enriched descriptions from videos. 
+    Our approach (Figure \ref{fig:architecture}) adopts the ``encoder-decoder'' design: a video encoder that extracts global representations of the input video, and a transformer decoder that produces relevant commonsense knowledge along with captions.
+    
+    \paragraph{Video Encoder:}
+    We obtain per-frame ResNet-152~\cite{he2016deep} features for video $\mathit{V}$ and process them using an LSTM model~\cite{sundermeyer2012lstm}, a standard architecture for modeling long temporal sequences, and use the last hidden states of the LSTM as the video representations.
+    We concatenate all previous hidden states from each LSTM module as a final global video encoding $\mathbf{v}$, to provide the model with explicit context using the temporal attention mechanism.
+    
+    \paragraph{Decoder:}
+    The video encoding is used as input to two decoder networks that use a transformer language model~\cite{radford2018improving} to generate a caption and commonsense description, using an inference mechanism similar to~\citet{bosselut2019comet}.
+    Our model is a two-stage process that first predicts the current events directly from videos, and then produces the corresponding commonsense captions. 
+    During training, the caption decoder $\mathbf{D}_{\textsc{CAP}}$ takes the video encoding ($\mathbf{v}$) and ground truth caption ($\mathbf{s}$) as input to generate caption encoding ($\mathbf{\hat{s}}$), while the commonsense decoder $\mathbf{D}_{\textsc{CMS}}$ uses the concatenation of video and caption encoding to obtain the commonsense description ($\mathbf{c}$), as shown in Figure~\ref{fig:pipeline} (b).
+    This arrangement enables the attention module in commonsense decoder to attend to both the video and caption context. 
+    \begin{equation}
+    \small
+        \mathbf{\hat{s}} = \mathbf{D}_{\textsc{CAP}}(\mathbf{v},  \mathbf{s}),  \quad 
+        \mathbf{c} = \mathbf{D}_{\textsc{CMS}}(\mathbf{v},  \mathbf{\hat{s}}).
+    \end{equation}
+
+    
+    \noindent\textbf{Transformer Decoder}
+    is composed of a stack of transformer blocks (dashed area in (c) Figure~\ref{fig:architecture}), whose main component is a self-attention architecture.
+    It takes as input the summation of word embedding and the positional encoding offset by 1 position through masked multi-head attention, which prevents the future words been seen. 
+    In our model, we deploy two stacked decoder architectures for both caption decoding and commonsense knowledge decoding.
+    The Transformer Block consists of consecutive linear transformation: a multi-head attention module (denoted as $\mathcal{H}_{\textsc{M-Att}}$), a two-layer feed forward network ($\mathcal{H}_{\textsc{FFN}}$), a layer normalization operation, and a residual connection.
+        
+    \paragraph{Multi-head Attention module} 
+    To enable our transformer decoder to generate commonsense descriptions by using both the visual and textual content, we modify the multi-head attention module (which acts as the basic unit in recent transformer based language generation models~\cite{radford2018improving,radford2019language}) as a cross-modal module.
+    $\mathcal{H}_{\textsc{M-Att}}$ takes the input of the embedding of key (K), value (V) and query (Q).
+    The key and value in transformer block are the video encoding (caption decoder) or concatenation of video/caption encoding (commonsense decoder), while the query is the output from the previous transformer block. 
+    In the masked multi-head attention module, K, V and Q are the identical vectors of input embedding.
+    For a self-attention block with $h$ heads,
+        \begin{equation}
+        \small
+            \mathcal{H}_{\textsc{M-Att}}(\textsc{K}, \textsc{V}, \textsc{Q}) = \mathcal{H}_{\textsc{FFN}}([x_1,\dots, x_h]),
+        \end{equation}
+        where $x_i$ is computed by scaled dot-product attention operation, for head-index $i$, key-dimension $d_k$n, and transformation parameters $\textsc{w}_i$. 
+        \begin{equation}
+        \small
+        \begin{split}
+            \textbf{for } \mathbf{D}_{\textsc{CAP}}, &\quad {x_i} = \textsc{Softmax}(\frac{\textsc{w}^\textsc{q}_i \textsc{Q}\cdot \textsc{w}^\textsc{k}_i \textsc{K}^\prime}{\sqrt{d_k}})\textsc{w}^\textsc{v}_i \textsc{V}, \\
+            \textbf{for } \mathbf{D}_{\textsc{CMS}}, &\quad {x_i} = \textsc{Softmax}(\frac{\textsc{w}^\textsc{q}_i [\mathbf{v},  \mathbf{s}]\cdot \textsc{w}^\textsc{k}_i [\mathbf{v},  \mathbf{s}]^\prime}{\sqrt{d_k}})\textsc{w}^\textsc{v}_i \textsc{V}.
+        \end{split}
+        \nonumber
+        \end{equation}
+            
+        
+
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% DATASET
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\section{The V2C Dataset}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{v2c/fig/v2cdataset.pdf}
+    \caption{The overall three-step pipeline (retrieval from ATOMIC, BERT re-ranking, and human labeling) to construct our V2C dataset.}
+    \label{fig:v2cdataset}
+\end{figure}
+
+For the V2C task we need video clips annotated with commonsense descriptions about the agents in the video, as shown in Figure~\ref{fig:pipeline}.
+While there are video captioning datasets such as  MSR-VTT~\cite{xu2016msr}, the captions in these datasets describe only the observable objects in the image, but do not describe latent and commonsense aspects.
+We are the first to curate such a dataset with annotations describing the intention of agent to perform an action, the effect of the action and the attribute of the agent given the action.
+
+\paragraph{M{SR-VTT}} contains around 10k videos each 10 to 30 seconds long, belonging to 20 categories covering a variety of topics such as sports, music, news, and home videos.
+Each video is accompanied by 20 human-annotated textual descriptions on average.
+For training and benchmarking the novel V2C task,  we further complement MSR-VTT with event-level commonsense annotations, i.e. event descriptions with intentions, effects and attributes. 
+We remove captions and videos that do not have clear human activities.
+This is because having such videos leads to an imbalance in the number of captions for each video, thus making it inappropriate to just evaluate caption generation using BLEU scores.
+
+\paragraph{A\textsc{TOMIC}}\cite{sap2018atomic} is an atlas of everyday commonsense knowledge and contains 880k triplets about causes and effects of human activities, organized as \textit{if-then} relations, annotated by crowd-sourced workers.
+This data can be categorized based on causal relations, thereby giving us the categories ``cause", ``effect" and ``attribute", e.g., ``\textit{if} X wants to relax, \textit{then} he will play video game."
+    
+    \subsection{Querying from ATOMIC and Re-ranking}
+    \input{v2c/tables/atomic_retrieved}
+    
+    Since inferential knowledge in A\textsc{tomic} only covers human activities, we first retain only those captions in {M{sr-vtt}} that describe human activities.
+    We then select three queries from A\textsc{tomic} most similar to the caption, and extract the commonsense descriptions corresponding to these queries.
+    In order to select a more reasonable subset of commonsense descriptions, we first train a ranking model.
+    We use the BERT~\cite{devlin2018bert} architecture for the ranking model, trained on the ATOMIC dataset for a binary classification task, to predict the relevance of a candidate commonsense description with respect to the event.
+    We select the top three relevant intentions, effects, and attributes for each caption.
+    This allows us to obtain a preliminary set of 9 commonsense annotations per video directly from the A\textsc{tomic} dataset, relevant to the caption, albeit with noise and annotations that are not relevant to the video.
+
+\input{v2c/tables/auto_eval}
+    \subsection{Detailed Human Annotation}
+    Since we do not use the video to retrieve commonsense descriptions from ATOMIC, we employ human workers to annotate our dataset.
+    We recruit two sets of human workers to watch the video, read the caption and select/annotate the relevant commonsense descriptions for each video.
+    The first set is Amazon Mechanical Turkers (AMT) who select relevant descriptions.
+    The second set is skilled human annotators, screened from a set of university students proficient in English, who are asked to provide annotations in their own words, and remove or edit irrelevant annotations that were provided by ATOMIC and AMT workers.
+    This makes our annotations not only grounded in the video, but also more descriptive, linguistically diverse, and of higher quality (see Figure~\ref{fig:v2cdataset}).
+    The descriptions from ATOMIC, although not relevant to the video in some cases, give our workers an idea about the format of annotations desired.
+    The skilled humans reported that $95\%$ of the captions were relevant, and $65\%$ of the ATOMIC descriptions were useful in understanding the annotation task. Through this procedure, we obtain 6819 videos for training and 2906 videos for testing, a total of 121,651 captions ($\sim$12 captions/video), each caption accompanied with 5 commonsense knowledge annotations (V2C-Raw set). In experiment, we use video captioning technique to conduct the V2C completion task on V2C-Raw set.
+    In addition, we instruct human annotators to select and rewrite one raw phrase into complete sentences that complement the captions.
+    In total we have 3 complete sentences per video for intention/effect/attribute respectively, and this yields a subset that allows our model to generate complete story-like sentences (V2C-Clean Set).
+    Table~\ref{tab:atomic_generations} shows examples from the newly compiled dataset. 
+    We conduct rigorous human evaluation to evaluate the quality of our V2C dataset (``Gold Annotations'' in Table~\ref{tab:humanevaluation}).
+    Details about the dataset creation process and quality control mechanisms can be found in the Appendix.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% EXPERIMENTS
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\input{v2c/tables/human_eval} 
+\section{Experiments}
+In this section we describe the loss function used for training our model, additional details about video pre-processing, hyper-parameters, and baseline models, and the metrics used for evaluation.
+
+    \paragraph{Loss Function:}
+    The decoder parameters $\mathbf{\Theta}$ are trained to maximize the log-likelihood over the training set given by
+    $\mathcal{L} = \mathcal{L}_{cap} + \mathcal{L}_{cms}$, where
+    \begin{equation}
+        \small
+        \begin{split}
+            \mathcal{L}_{cap}   &= \sum_{t=1}^{N_S}\textrm{log Pr}(\textbf{y}_t| \textbf{y}_{t-1}, \mathbf{v}; \mathbf{\Theta}), and\\
+            \mathcal{L}_{cms}   &= \sum_{t=1}^{N_C}\textrm{log}\textrm{ Pr}(\textbf{y}_t|\textbf{y}_{t-1}, [\mathbf{v}, \widetilde{\mathbf{s}}]; \mathbf{\Theta}).
+        \end{split}
+    \end{equation}
+    $\textbf{y}_{t}$ denotes the one-hot vector probability of each word at time $t$, and $N_S, N_C$ denote the length of the caption and commonsense respectively.
+
+ 
+           
+    \paragraph{Setting:} 
+    In order to obtain video representations, we uniformly sample 40 frames from each video and extract features using feed ResNet~\cite{he2016deep} pre-trained on Imagenet I\textsc{lsvrc}12 dataset~\cite{deng2009imagenet} and get a 2048-d output from the last layer. 
+    We use one-hot input (1-of-\textit{N} encoding) of the text input and pass it through an embedding layer to produce a 1028-d hidden vector. 
+    We use independent vocabularies for captioning and commonsense generation with sizes 27,603 and 24,010 respectively. Note that, as the generated 
+
+    \paragraph{Hyperparameters:}
+    Our decoder is a lightweight transformer decoder consisting of 6 transformer blocks with 8 attention heads each. 
+    We use Adam optimizer with 5000 warm-up steps, and learning rate initialized at $1e$-4, and a dropout probability of 0.1 after the residual layer. 
+    Our model is trained on a machine with single NVIDIA 1080-Ti GPU.
+    
+    \paragraph{Baseline Model:} 
+    We compare our method with strong video captioning baseline models like, S2VT~\cite{venugopalan2015sequence}, ``Attention-Enc-Dec''~\cite{gao2017video} -- LSTM based models which reach competitive performing on MSR-VTT dataset.
+    and ``Dense Captioning''~\cite{zhou2018end}, which is a transformer based video captioning model. As ``Dense Captioning'' is proposed to generate multiple continuous captions for a long untrimmed videos, we modify this by removing the temporal bounding boxes prediction module, and produce two continuous captions (caption + commonsense sentence) together without corresponded starting and ending time.
+    All baselines are trained to predict commonsense descriptions from video on the V2C dataset.
+    We do not compare with VideoBERT~\cite{sun2019videobert} which is trained on a limited set of cooking videos and hence non-transferable, and requires individual captions for multiple segments of the video.
+
+
+    
+    \paragraph{Metrics:}
+    We report both the performances evaluated by automatic scores and human evaluations following the protocols from~\cite{bosselut2019comet,sap2018atomic}.
+    We evaluate our method using BLEU (n=1-4)~\cite{papineni2002bleu}, Meteor~\cite{banerjee2005meteor}, Rouge~\cite{lin2004rouge}, score of the generation on its corpus.
+    We further conduct human evaluations using AMT workers, who are asked to identity whether the generated commonsense justifiably completes the events (V2C-completion). 
+    We follow the setup in~\cite{sap2018atomic} and randomly sample 100 videos from test set and collect 10 generations for each.
+    To guarantee the objectiveness of the human evaluations, we hire 5 workers for each sample, yielding \textbf{30k} ratings in total for each model.
+
+
+    \subsection{Results}
+    
+    \paragraph{Natural Language Generation Metrics:}
+    We show evaluation of the commonsense completion task in Table~\ref{tab:automaticevaluation}.
+    Compared to the baseline model, our method exhibits a consistent and overall improvement on almost all metrics.
+    Our V2C-Transformer significantly outperforms the attention mechanism based LSTM model~\cite{venugopalan2015sequence} by 6.5\% at BLEU-4 for the intention prediction.
+    Because the V2C-Transformer and the LSTM model share a similar video decoder, our performance improvement could be attributed to the use of self-attention mechanisms in the transformer block in decoding phase. 
+    This observation is consistent with the conclusion from~\cite{bosselut2019comet}, and yields further support to the transformer architecture being suited for commonsense inference tasks.
+    Moreover, when compared with a transformer encoder + decoder architecture which have similar learnable parameters with our model, our model exhibits better evaluation scores, verifying it as a strong baseline model for the V2C task. For a fair comparison, all baseline models are pre-trained for 600 epochs with on par learnable parameters.
+    
+    \begin{figure*}[t]
+        \centering
+        \includegraphics[width=\linewidth]{./v2c/fig/qualitative.pdf}
+        \caption{Examples of outputs of our model for the V2C Completion and Generation tasks along with the ground-truth (GT) caption.
+        A failure example shown in the bottom red box. }
+        \label{fig:qualitative}
+    \end{figure*}  
+    
+    
+    \paragraph{Human Evaluation}
+    In Table~\ref{tab:humanevaluation}, {E2C} (Event to Commonsense) is the task of commonsense completion given only textual events~\cite{sap2018atomic,bosselut2019comet} as opposed to V2C which uses both text and video.
+    9E\textsc{nc}9D\textsc{ec}~\cite{sap2018atomic} is composed of nine GRU based encoder-decoders as a baseline model for commonsense completion on text, and C\textsc{omet}~\cite{bosselut2019comet} is a large-scale generative pre-trained transformer (GPT) model~\cite{radford2018improving}. 
+    We would like to highlight that our transformer model is light-weight with only half of the parameters in GPT without any pre-training. 
+    
+    We evaluate our model on the tasks of caption generation with human evaluations, and also compare it with the gold annotations. 
+    Our gold annotation for ground-truth captions (sourced from the MSR-VTT dataset) points to the fact that a small percentage of captions from MSR-VTT are not relevant to the video, and this is amended by our human workers.
+     
+    For the  {V2C-Completion} task, our V2C-Transformer model is substantially better (by 7.73\%) than the LSTM-based model from \cite{gao2017video}, and shows consistent lead on each dimension. 
+    Thus, when the ground-truth caption is given, our model is able to generate much more relevant commonsense descriptions, thereby consolidating it's ability of commonsense generation.
+    
+    For the task of  {V2C-Generation}, the difference between human scores for LSTM vs V2C-Transformer is reduced, but our VTC outperforms on average by 2.98\%.
+    This may be attributed to the fact that the LSTM-based model is slightly better at generating captions.
+   
+
+    \paragraph{Generating Textual Stories with Commonsense}
+    In order to generate story-like textual descriptions that complement the factual captions, we additionally train our model to exploit our diverse complete-sentence annotations.
+    Specifically, instead of producing the commonsense knowledge given the videos and captions, we finetune our pre-trained V2C-Transformer model on predicting the human rewritten texts, and generate complete story-like captions.
+    Since we do not have enough annotations per sample to compute a fair BLEU score for comparisons, we showcase some sample generated descriptions for qualitative analysis (see Figure~\ref{fig:qualitative}). 
+    With that, we observe V2C-Transformer is able to produce complete stories that contain simple, while logically consistent storylines that complement both the visual content and the factual descriptions. 
+    We believe that collecting a set of story-like sentences will further enrich our models, and allow us to generate much more contextual, creative, and natural commonsense descriptions from a video. 
+
+
+\section{V2C-QA}
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=\linewidth]{v2c/fig/v2cqa.pdf}
+    \caption{Example questions from V2C-QA compared with conventional video question answering.}
+    \label{fig:v2cqa}
+\end{figure}
+Another way of generating commonsense descriptions about the video is by asking pointed questions.
+Consider the example in~\ref{fig:pipeline} where we ask the question \textit{``What happens next to the runners"}, about the \textit{effect} of the action ``prepare" performed by the agents \textit{``group of runners"} observed in the video.
+We propose a V2C-QA -- an open-ended commonsense video question-answering task, where we ask questions about the intents, effects and attributes of the agents in the video.
+
+\noindent\textbf{Dataset:}
+We use the caption and commonsense annotations in the V2C dataset to create question-answer pairs for each video.
+We first extract the action and subject from the caption using SpaCy linguistic features~\cite{honnibal-johnson:2015:EMNLP}.
+For each intention, attribute and effect for a video, we use template-based generation to get 7 types of questions -- yielding 21 questions per sample, including negative questions as in~\citet{gokhale2020vqa}.
+In total, we have 1,250 training videos and 250 test videos, and a total of 37k questions.
+We have a set of 5,555 unique answers for our questions.
+Each question can have multiple possible true answers as shown in the example in Figure~\ref{fig:v2cqa}.
+The V2C-QA task asks questions that require commonsense reasoning about internal mental states, motivations, and latent aspects of agents in the video as opposed to the conventional video-QA questions about visible objects and actions.
+
+
+\paragraph{Models:}
+We utilize our V2C-Encoder followed by an open-ended answering module.
+We jointly predict the type of the question and combine it with the V2C encoding using a feed-forward network.
+For textual features, we use embeddings from BERT-base~\cite{devlin2018bert}.
+Our models are trained on the open-ended QA task and set-up as a multi-label classification task similar to VQA~\cite{antol2015vqa}, with an answering module design inspired by LXMERT~\cite{tan2019lxmert}.
+Our loss function includes the classification loss for answering, the attention loss for question-type, and a label-ranking loss.
+
+\input{v2c/tables/v2cqa_results}
+\paragraph{Results:}
+MSR-VTT QA~\cite{xu2017video} is as a good baseline since it is trained on a conventional videoQA task on the MSR-VTT videos, and only takes video and query as input, unlike recent video understanding models~\cite{lei2018tvqa} that take additional supervision, such as subtitles.
+However this model is trained for a multiple-choice QA scheme, so we modify it with our open-ended answering module.
+We compare our models when we use our encoder pretrained on the V2C caption generation task, and then finetune it on the V2C-QA task.
+We also train models with ground-truth factual captions as input.
+Our results are shown in Table~\ref{tab:v2cqa_results}, where we evaluate on prediction of top-k (1,3,5) answers, and report precision and recall.
+Our encoder pre-trained on the V2C task outperforms all other models.
+Attribute-related questions are easier to answer, while the models struggle the most for questions about intention. Captions help in questions about effects.
+The overall text-only baseline shows an insignificant bias between the question and answer-options.
+
+\section{Related Work}
+    \noindent\textbf{Video Captioning:}
+    Captioning is crucial for understanding visuals; however it is typically limited to describing observable objects and events~\cite{yang2011corpus,thomason2014integrating,gan2017semantic}),
+    or for generating paragraphs or multi-sentence captions about the image or video~\cite{krause2016paragraphs,krishna2017dense}.
+    However, for detailed video understanding, one needs to obtain descriptions that go beyond observable visual entities and use background knowledge and commonsense to reason about objects and actions.
+    Work for inferring motivations of human actions in static images by incorporating commonsense knowledge are reflected in~\citet{pirsiavash2014inferring,vondrick2016predicting}.
+    Commonsense caption generation has been approached on abstract scenes and clip-art images in~\citet{vedantamLinICCV15}.
+    We present the first generative model for commonsense video captioning.
+    
+    \noindent\textbf{Video Question Answering:}
+    Since caption generation can only describe observable events, recent work seeks to move closer to comprehension, by learning to answer complex questions about videos.
+    However, the datasets used for Video QA~\citep{yang2003videoqa,xu2016msr,zhu2017uncovering} focus only on directly evident visual concepts and construct the questions mostly about ``where'' and ``what'' aspects.
+    Question answering on movie videos has been explored by~\citet{tapaswi2016movieqa} who collect questions about ``why'' and ``how'' aspects.
+    Recently~\citet{lei2018tvqa,zadeh2019social} have propose video-based QA tasks with open-ended high-order questions that need multi-modal understanding, social intelligence modeling, and spatio-temporal reasoning.
+    We introduce a novel open-ended video question answering task in this paper, where the questions are about three aspects of commonsense human behavior.
+
+    \noindent\textbf{Visual Reasoning:}    Aspects of visual reasoning have been explored by~\citet{yatskar2016situation} as a situation recognition task on single images, and in Visual Madlibs~\citep{yu2015visual} as a ``fill-in-the-blanks" task for single-image captioning that contains some categories which require reasoning about internal mental states and future events.
+    \citet{kim2018textual} provide textual explanations for actions in a self-driving scene.
+    \citet{zellers2019recognition} propose a visual question answering task that requires commonsense reasoning to answer a question and to provide a rationale behind the answer.
+    Spatial and compositional reasoning is required to answer questions about synthetic images in CLEVR~\cite{johnson2017clevr}. Critical aspects of visual reasoning also include the model's ability to conduct object grounding by natural language descriptions~\citep{rohrbach2016grounding,fang2018weakly,fang2019modularized}.
+    Another aspect of visual reasoning is the ability predict a sequence of actions (procedure planning), or to reason about intermediate video frames (walkthrough planning) between two frames, explored in \citet{gokhale2019blocksworld,chang2019procedure}.
+    
+    \noindent\textbf{Textual Commonsense:}
+    Commonsense-based question answering is an area of active research with several datasets and challenges requiring reasoning about conceptual commonsense~\cite{talmor2019commonsenseqa}, physical commonsense~\citep{bisk2020piqa}, social commonsense~\citep{sap2019social}, and abductive commonsense~\citep{bhagavatula2020abductive}.
+    On the other hand, challenges such as ProPara~\citep{mishra2018tracking} and bAbI~\citep{weston2015towards} require tracking elements, actions, and effects of actions.
+    Commonsense-based text generation has recently been explored via the A\textsc{tomic} dataset~\cite{sap2018atomic}, a corpus of 877k textual descriptions of inferential knowledge organized as \textit{if-then} relations.
+    \citet{bosselut2019comet} adopt the A\textsc{tomic} dataset to learn a generative model of commonsense knowledge.
+    To the best of our knowledge, ours is the first work on \textit{generating} commonsense descriptions from visual inputs.
+
+
+\section{Outlook}
+A video typically contains one or many objects (sometimes performing actions) in different backgrounds, scenes, or situations.
+Some objects may be ``passive" such as trees or buildings, while some objects may be ``active" such as people performing actions like walking, singing, and driving.
+This paper is focused on describing such active agents in terms of their intentions, effects of their actions, and attributes that characterize these agents.
+
+We distinguish V2C from the traditional video captioning task.
+Video captions describe observable objects, background, and actions, while commonsense descriptions in our task seek to describe the unobservable intentions of the agent (pre-conditions or mental conditions), effects of the action (that happen in the future), and attributes which characterize the agent.
+Thus commonsense generation goes \textit{beyond the visible}.
+Ours is the first attempt at developing a generative video-based commonsense model.
+We anticipate that our framework can be utilized for many applications in video understanding, comprehension, human-robot interaction, and learning commonsense in a multi-modal setting.
+
+
+\section{Conclusion}
+In this paper, we explore a novel and challenging task to generate video descriptions with rich commonsense descriptions that complement the factual captions.
+We expand an existing video captioning dataset for the V2C task through automated retrieval from a textual commonsense corpus followed by human labeling, and present a novel V2C-Transformer model to serve as a strong baseline method for the V2C task. 
+Our evaluation verifies the effectiveness of our method, while also indicating a scope for further study, enhancement, and extensions in the future. 
+Our experiments on using the V2C-Transformer as a component for the V2C-QA task show that the model has transfer learning capabilities that can be applied to other vision-and-language tasks such as question-answering, that require commonsense reasoning.
+
+% \section*{Acknowledgements}
+% {
+% The authors acknowledge support from the NSF Robust Intelligence Program project \#1816039, the DARPA KAIROS program (LESTAT project), the DARPA SAIL-ON program, and ONR award N00014-20-1-2332.
+% ZF, TG, YY thank the organizers and the participants of the   \href{https://sites.google.com/view/telluride2019/}{Telluride Neuromorphic Cognition Workshop}, especially the Machine Common Sense (MCS) group.
+% }
+% \bibliography{emnlp2020}
+% \bibliographystyle{acl_natbib}
+
+% \clearpage
+% \appendix
+% \input{supp}

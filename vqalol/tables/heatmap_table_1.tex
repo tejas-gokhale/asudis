@@ -1,0 +1,24 @@
+\begin{table}
+    
+    \centering
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{lcc cc cc c}
+    \toprule
+    \textbf{QF} & \textbf{LXMERT} &\hphantom& \textbf{LXMERT+$\ell_{ATT}$} &\hphantom & \textbf{LXMERT+$\mathbf{q_{\textit{\tiny ATT}}}$} &\hphantom & \textbf{LXMERT+$\mathbf{q_{\textit{\tiny ATT}}}$+$\mathbf{\ell_{\textit{\tiny ATT}}}$}\\
+    \toprule
+    $\neg Q_1$                  & 85.39 && 85.55 && 84.78 && 86.43\\
+    $\neg Q_2$                  & 84.38 && 85.45 && 84.94 && 86.08\\
+    $Q_1\wedge Q_2$             & 81.50 && 87.77 && 87.66 && 87.77\\
+    $Q_1 \vee Q_2$              & 85.26 && 81.58 && 80.54 && 80.97\\
+    $Q_1 \wedge \neg Q_2$       & 85.71 && 85.77 && 84.45 && 85.02\\
+    $Q_1 \vee \neg Q_2$         & 87.12 && 86.22 && 85.98 && 85.53\\
+    $\neg Q_1 \wedge Q_2$       & 85.10 && 85.34 && 84.83 && 85.53\\
+    $\neg Q_1 \vee Q_2$         & 80.76 && 78.92 && 83.79 && 84.75\\
+    $\neg Q_1 \wedge \neg Q_2$  & 87.98 && 86.59 && 79.77 && 81.32\\
+    $\neg Q_1 \vee \neg Q_2$    & 87.12 && 85.42 && 87.42 && 87.74\\
+    \bottomrule
+    \end{tabular}
+    % }
+    \caption{Accuracies on each type of question in \texttt{VQA-Compose} by each model. QF is Question Formula}
+    \label{table:heatmap_table_1}
+\end{table}

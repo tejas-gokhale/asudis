@@ -1,0 +1,31 @@
+\begin{table}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule 
+        \multirow{2}{*}{Model} & \multicolumn{4}{c}{VQA-CP v2 test $\uparrow$ (\%)}\\
+        \cmidrule{2-5}
+        & All & Yes/No & Num & Other \\
+        \toprule
+        UpDn                    & 50.16 & 61.45 & 35.87 & 50.14 \\
+        UpDn~+~AP             &  54.51 & 88.35 & 41.01 & 32.89\\
+        UpDn~+~TE             &  56.32 & 80.56 & 46.14 & 46.41\\
+        UpDn~+~AP~+~TE       &  55.76 & 90.25 & 43.78 & 41.40\\
+        UpDn~+~AP~+~PW         &  57.54 & 91.59 & 49.17 & 41.93\\
+        UpDn~+~TE~+~PW        &  60.32 & 86.10 & 50.23 & 49.58 \\
+        UpDn~+~AP~+~TE~+~PW  &  61.72 & 88.90 & 49.68 & 50.78\\
+        \midrule
+        LXM                  & 59.69 & 73.19 & 32.85 & 59.29 \\
+        LXM~+~AP            & 60.45 & 88.46 & 43.24 & 50.49 \\
+        LXM~+~TE           & 63.36 & 77.10 & 46.50 & 61.27 \\
+        LXM~+~AP~+~TE     & 64.73 & 85.34 & 47.23 & 58.71 \\
+        LXM~+~AP~+~PW       & 67.14 & 90.49 & 65.52 & 55.34 \\
+        LXM~+~TE~+~PW      & 64.17 & 94.71 & 35.19 & 48.80 \\
+        LXM~+~AP~+~TE~+~PW & \textbf{69.52} & \textbf{93.15} & \textbf{67.17} & \textbf{57.78} \\
+        
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Ablation study to investigate the effect of each component of our method: Answer Projection (AP), Type Exposure (TE), Pairwise Consistency (PW), and independent effect of image and question mutations.}
+    \label{tab:ablation}
+\end{table}

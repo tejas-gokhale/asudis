@@ -1,0 +1,403 @@
+\chapter{Robustness under Attribute Shift}
+\label{chap:agat}
+% \begin{abstract}
+% While existing work in robust deep learning has focused on small pixel-level norm-based perturbations, this may not account for perturbations encountered in several real-world settings.
+% In many such cases although test data might not be available, broad specifications about the types of perturbations (such as an unknown degree of rotation) may be known.
+% We consider a setup where robustness is expected over an unseen test domain that is not i.i.d.\ but deviates from the training domain.
+% While this deviation may not be exactly known, its broad characterization is specified \textit{a} priori, in terms of attributes.
+% We propose an adversarial training approach which learns to generate new samples so as to maximize exposure of the classifier to the attributes-space, without having access to the data from the test domain.
+% Our adversarial training solves a min-max optimization problem, with the inner maximization generating adversarial perturbations,
+% and the outer minimization finding model parameters by optimizing the loss on adversarial perturbations generated from the inner maximization.
+% We demonstrate the applicability of our approach on three types of naturally occurring perturbations -- object-related shifts, geometric transformations, and common image corruptions.
+% Our approach enables deep neural networks to be robust against a wide range of naturally occurring perturbations.
+% We demonstrate the usefulness of the proposed approach by showing the robustness gains of deep neural networks trained using our adversarial training on MNIST, CIFAR-10, and a new variant of the CLEVR dataset.
+
+% \end{abstract}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% \section{Introduction}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+The goal of \textit{robust} machine learning models for tasks such as image classification is to make accurate predictions on \textit{unseen} samples.
+The i.i.d.\ assumption is the simplest case in which unseen samples come from the same distribution as the training dataset.
+However, in most real-world situations, this assumption breaks down and so do models trained under the i.i.d.\ paradigm~\citep{recht2018cifar, bulusu2020anomalous}.
+
+As discussed in Chapter~\ref{chap:background}, most prior work on non-\textit{i.i.d.} robustness has been focused on adversarial robustness, i.e. the ability to maintain good performance when the image undergoes pixel-level $\ell_p$ norm-bounded perturbations such as additive noise~\citep{goodfellow2014explaining,sinha2018certifying,madry2018towards,raghunathan2018certified}.
+While such perturbations allow the use of tractable mathematical formulations, in practice, they are not the only perturbations that might be encountered at test time.
+For example, geometric transforms such as rotation, translation, or scaling of images, that are commonly encountered in the real world are not accounted for by pixel-wise $\ell_p$ bounded perturbations.
+
+Images are parameterized by several unique attributes ranging from low-level information responsible for image formation like lighting, camera angle and resolution; to high-level semantic information like changes in background, size, shape, or color of objects in a scene.
+Perturbations along many of these attributes are irrelevant to tasks like image classification and are thus ``semantics-preserving" perturbations.
+For instance, translating a digit inside an image in a digit classification task, or manipulating the shape of an object in a color classification task, will not result in a change in the true class-label.
+Yet, perturbations along these attributes are likely to cause models to fail when they are changed intentionally or otherwise \citep{xiao2020noise,joshi2019semantic,liu2018beyond}.
+Shifts in such ``nuisance attributes'' typically result in large $\ell_p$ perturbations, posing significant challenges for existing pixel-level perturbation models.
+On the other hand, it is impractical to sample the entire attribute space effectively in order to guard against potential failures at test time.
+In this work, we shall build robust image classifiers that can deal with such types of attribute shift.
+
+The approach that we will discuss in this chapter, is a robust modeling technique that we call \textbf{AGAT: \textit{Attribute Guided Adversarial Training}}, which learns to generate new samples so as to maximize the exposure of the classifier to variations in the attribute space.
+Our approach falls under the broad category of adversarial training~\citep{madry2017towards}, and utilizes a min-max optimization setup, wherein the inner maximization step generates adversarial attribute perturbations while the outer minimization step identifies model parameters that reduce the task-specific loss (e.g., categorical cross entropy) under these perturbations.
+We find that the attribute-based specification produces models that can more effectively handle challenging real-world distribution shifts than standard $\ell_p$ norm-bounded perturbations~\citep{qiao2020learning}.
+Furthermore, our proposed approach is flexible to support a wide-range of attribute specifications, which we demonstrate with three different use-cases:
+\begin{enumerate}[nosep,noitemsep,leftmargin=2em]
+    \item Object-level shifts from a conditional GAN for adversarial training on a new variant of the CLEVR dataset;
+    \item Geometric transformations implemented using a spatial transformer for MNIST data; and
+    \item Synthetic image corruptions on CIFAR-10 data.
+\end{enumerate}
+% Our contributions can be summarized as follows:
+% \begin{itemize}[nosep,noitemsep,leftmargin=2em]
+%     \item We consider the problem of robustness under a set of specified attributes, that go beyond typically considered $\ell_p$ robustness in the pixel space.
+%     \item We present Attribute-Guided Adversarial Training (AGAT), a robust modeling technique that solves a min-max optimization problem and learns to explore the attribute space and to manipulate images in novel ways without access to any test samples.
+%     \item We create a new benchmark called ``CLEVR-Singles''
+%     to evaluate robustness to semantic shifts. The dataset consists of images with a single block having variable colors, shapes, sizes, materials, and position.
+%     \item We demonstrate the efficacy of our method on three classes of semantics-preserving perturbations: object-level shifts, geometric transformations, and common image corruptions.
+%     \item Our method outperforms competitive baselines on three robustness benchmarks: CLEVR-Singles, MNIST-RTS, and CIFAR10-C.
+% \end{itemize}
+
+
+% \section{Related Work}
+% Most existing work on robustness deals with the problem of finding $\ell_p$ perturbations which focus on additive noise, with tractable mathematical guarantees of performance when test data falls within an $\epsilon$-ball of the training distribution~\citep{goodfellow2014explaining,sinha2018certifying,madry2018towards,raghunathan2018certified}.
+% Such perturbation are typically \emph{imperceptible} to the human eye. 
+% As a result, there is an increasing interest in addressing challenges that arise from natural corruptions or perturbations \citep{hendrycks2018benchmarking} that are \emph{perceptible} shifts in the data, more likely to be encountered in the real world.
+% For example,~\citep{liu2018beyond} use a differentiable renderer to design adversarial perturbations sensitive to semantic concepts like lighting and geometry in a scene;~\citep{joshi2019semantic} design perturbations only along certain pre-specified attributes by optimizing over the range-space of a conditional generator. 
+% Our work focuses on building robust models against semantic, or more generally attribute guided concepts that may or may not exist in the training distribution, using a surrogate function. 
+
+% $\ell_p$-norm based robustness methods make no assumptions about the test distribution, except that the methods are guaranteed to be robust only inside the $\epsilon$-ball of the training distribution~\citep{volpi2018generalizing,qiao2020learning}.
+% Some recent approaches extend this notion to assume some access to data from the test distribution such as TTT~\citep{sun2020test} that achieves robustness for a test example by minimizing the cost of an auxiliary task for each test sample; and~\citep{wong2020learning} learn a CVAE using possible corruptions one might encounter, to then guarantee robustness of a classifier within the learned perturbation set.
+% For comparison, our method assumes access to no data from the test distribution, but only knowledge of a specification, which is the intended functionality of the system specified in human-understandable attributes. Under this challenging set-up, we show our method still outperforms existing robustness techniques on popular and standard benchmarks. 
+
+
+\section{Setup}
+\begin{figure}
+    \centering
+    \includegraphics[width=\linewidth]{agat/images/overall_new.pdf}
+    \caption{Overview of the problem setup and our attribute-guided adversarial training method.}
+    \label{fig:problem}
+\end{figure}
+
+
+We begin by defining the classifier parameterized by a set of neural network weights, $\theta$, as
+${H}_{\theta}:
+\mathcal{X}_s\mapsto \mathcal{Y}$, where $\mathcal{X}_s$ denotes the space of the observed image data (or source) and $\mathcal{Y}$ denotes the label space for the task of interest.
+
+\paragraph{Robustness to natural perturbations.}
+Our goal is to train an $H_{\theta}$ that is robust to \emph{natural} perturbations, which are typically larger in magnitude than the \emph{imperceptible} $\ell_p$-bounded pixel-space perturbations, considered in the literature.
+We will consider sementic shifts in attributes such as shape, size, texture, and position of objects; geometric transformations of varying internsities; and common image corruptions such as noise, blur, weather, and digital artifacts.
+% We consider a broad range of natural semantics-preserving perturbations that will not affect the predictions for the task under consideration --
+%     (a) \textbf{Object-level shifts}, where attributes of the object are
+%     manipulated so as to considerably change the appearance of the object, without changing the task label; such as changing the shape or size of an object in a color classification task.
+%     % \BK{This definition should be changed Semantic Invariant}
+%     (b) \textbf{Geometric transformations}, where the test image may be scaled, rotated, and shifted in arbitrary ways; and
+%     (c) \textbf{Common image corruptions}, which may occur in the real world like fog, image compression artifacts, blurs, and other forms of noise.
+Most of these perturbations do not naturally fall within small $\ell_p$-norm ball deviations ($|\mathbf{x}-\tilde{\mathbf{x}}|_p\leq \epsilon$), for which most existing robustness methods are designed, and are bound to fail when the classifier encounters such data in the wild.
+However, making $\epsilon$ arbitrarily large in robustness formulations does not work in practice, since the image quality degrades significantly. 
+Hence, we propose a new framework to design models that are robust to such natural perturbations.
+
+\section{Attribute Guided Adversarial Training}
+
+Let us denote an image by $\mathbf{x}_\alpha$ parameterized by a set of attributes $\alpha$ related to image formation (lighting, viewing angle, position) as well as abstract semantic information (color, shape, size, etc.). 
+Manipulating images with new combinations of attributes that are not seen in the training set, requires access to the underlying physical generative processes,  which is unrealistic. We do not assume direct access to such deterministic mechanisms.
+
+Our goal is to train classifiers robust to natural perturbations along 
+% nuisance 
+attributes in $\alpha$ that are specified \emph{a priori}. Inspired by recent developments in robust optimization and adversarial training~\citep{madry2018towards}, we consider the following worst-case problem around $N$ attributes of the training data:
+\begin{equation}
+    \min_{\theta\in \Theta}\sum_{i=1}^N\max_{|\hat{\alpha}_i-\alpha_i|\leq \epsilon} \ell(\theta;(\mathbf{x}_{\hat{\alpha}_i},y_i)),
+    \label{agat:eq:adv_training_worst_case}
+\end{equation}
+where $\ell(\cdot)$ is the cross-entropy loss.
+
+The solution to worst-case optimization in Equation~\ref{agat:eq:adv_training_worst_case} guarantees good performance against test data that is distance $\epsilon$ away from the training data in the attribute space. 
+In other words, we expect the model learned using \eqref{agat:eq:adv_training_worst_case} to be robust against $\epsilon$-bounded natural perturbations.
+Interestingly, as we will empirically show later, models learnt using \eqref{agat:eq:adv_training_worst_case} perform better than existing pixel-level techniques even on $\ell_p$-bounded imperceptible perturbations.
+
+Although the structure of the attribute-guided adversarial training problem may look similar to standard adversarial training, we explain next why solving Eq~\eqref{agat:eq:adv_training_worst_case} is significantly more challenging and requires us to make several algorithmic innovations. 
+Note that \eqref{agat:eq:adv_training_worst_case} solves a min-max optimization problem, with the inner maximization generating natural perturbations by maximizing the classification loss over attribute space, and the outer minimization finding model parameters by minimizing the loss on natural perturbations of the training data generated from the inner maximization. The success of this method crucially relies on solving the inner optimization problem. 
+Motivated by the standard adversarial training, one might be temped to approximately solve the re-parameterized inner optimization problem
+\begin{equation}
+    \underset{|{\delta}|_p\leq \epsilon}{\max}~~l(\theta;(\mathbf{x}_{{\alpha}_i+{\delta}},y_i)),
+\end{equation}
+and generate the natural perturbations
+$\mathbf{x}_{\hat{\alpha}_i}^*$
+using projected gradient descent (PGD) as:
+\begin{equation}
+    {\delta_i}^* := \mathcal{P}_{\epsilon} (\delta_i-\lambda \nabla_{\delta} l(\theta;(\mathbf{x}_{{\alpha}_i+{\delta}},y_i))),
+\end{equation}
+where $\lambda$ is the gradient step and $\mathcal{P}_{\epsilon}$ is projection on $l_p$ ball of radius $\epsilon$. However, there are two fundamental issues with this approach making it infeasible in practice: first, we cannot compute gradients as we do not have access to the attribute space;
+and second, we do not have access to the true generative mechanism conditioned on the attributes.
+
+\subsection{Proposed Approach}
+\paragraph{Surrogate Functions.}
+We propose to use differentiable surrogate functions parameterized by attributes to overcome the limitation described above. 
+In other words, we have 
+$\mathbf{x}_{\alpha+\delta} \approx F_{\delta}(\mathbf{x}_{\alpha})$, 
+where $F_{\delta}$ is differentiable.
+Typically, exact perturbations 
+$\mathbf{x}_{\alpha+\delta} = F_{\delta}(\mathbf{x}_{\alpha})$
+can be performed for PGD attacks or other $\ell_p$ norm bounded attacks.
+However, in our case accessing the true generative process to manipulate images along $\alpha$ is not feasible. 
+For example, we cannot rely on deterministic functions to manipulate semantic features in the image like size, shape or texture of an object.
+As a result, we resort to using \emph{approximate} image manipulators in the form of surrogate functions which act as proxies to the true generative process.
+Depending on the type of attributes against which we wish to train for robustness, the surrogate function can take different forms:
+\begin{itemize}[nosep,noitemsep,leftmargin=2em]
+    \item generative editing models for semantic perturbation that is learned from the training data itself,
+    \item analytical functions for geometric transformations in the form of spatial transformers (STNs), or 
+    \item an analytical approximation (or tractable upper bound) of the natural perturbation space.
+\end{itemize}
+For example, if we want a classifier robust to unknown affine transforms then $F$ is the spatial transformer layer parameterized by $\alpha$ which now represents $6$ parameters controlling rotation, scale, and shift of the image.
+
+
+
+
+Note that we do not assume access to any additional data other than the clean training dataset $\mathcal{X}_s$, and specification of the class of functions against which robustness is desired. While such surrogate functions only approximate the natural perturbations, we show that they are sufficient for enabling us to make classifiers more robust to natural perturbations.
+
+
+
+
+\paragraph{Iterative Training Procedure.}
+Having access to attribute parameterized surrogate function, we aim to solve \eqref{agat:eq:adv_training_worst_case}. Note, the success of the adversarial training is dependent on the quality of the generated perturbations. Thus, we aim to generate natural perturbations that have a larger coverage over the specified attribute space than the training samples images $\mathbf{x}_s$. Consider the classifier $H_\theta$ which outputs the predicted class $\hat{y}$ and intermediate features $z$, let the surrogate function ${F}$ be parameterized by the attribute vector $\alpha$. We propose an iterative training procedure called Attribute-Guided Adversarial Training (\textbf{AGAT}) detailed in Algorithm~\ref{alg:adv_algo}. Our algorithm has two objectives: to minimize the classification loss over input images and to maximize the divergence between the training samples and generated perturbations. Thus, the key idea here is to explore novel and hard images that only \emph{vary along the specified attributes}. To achieve this, we impose a constraint that maximizes the distance between features of dataset images and perturbed images. Additionally, since we would also like to explore new regions in the attribute space, we impose a similar constraint on the attributes of perturbed images.
+
+
+We express this constraint as the loss function given by:
+\begin{equation}
+    \begin{split}
+        \ell_{const} = \lambda_1\ell_{feat} + \lambda_2\ell_{attr},~~\lambda_1, \lambda_2 \in (0,1)\\
+        \text{where~~ }
+        \ell_{feat} = ||\mathbf{z} - \mathbf{z^{gen}}||_2^2,
+        \text{~and~~}
+        \ell_{attr} = ||\alpha - \alpha^{gen}||_2^2
+    \end{split}
+    \label{agat:eq:loss_constraint}
+\end{equation}
+
+
+To ensure that the generated images belong to the same class as the input image, we combine classification loss with respect to the ground truth label $\mathbf{y}$ with consistency regularization with respect to the predicted label $\mathbf{\hat{y}}$ of $\mathbf{x}$.
+\begin{equation}
+    \ell_{cls} = \ell_{BCE}(\mathbf{y}, \mathbf{y^{gen}}) + \ell_{BCE}(\mathbf{\hat{y}}, \mathbf{y^{gen}})
+    \label{agat:eq:loss_distill}
+\end{equation}
+
+
+\noindent The overall loss function is computed as the Lagrangian:
+\begin{equation}
+    \ell_{AGAT} = \ell_{cls} - \beta\cdot\ell_{const}
+    \label{agat:eq:loss_overall}
+\end{equation}
+
+\input{agat/algo}
+
+% \BK{Notations below and in algo should be consistent with the previous section}
+Intuitively, $\ell_{cls}$ encourages the augmented images to belong to the same class-label as the input image, while the constraint $\ell_{const}$ encourages the adversarial learning algorithm to perturb the image features as well as the attributes away from the input features and attributes.
+We first pre-train the classifier only on the source samples $\mathbf{x}_s$ for $N_{pre}$ epochs.
+Then, we initiate our augmentation process.
+To generate new samples, we minimize Equation~\ref{agat:eq:loss_overall} and update the attribute vector for $M$ update steps as:
+\begin{equation}
+    \alpha^{gen} \gets \alpha^{gen} - \mu\triangledown \ell_{AGAT}.
+\end{equation}
+Finally, synthetic images are generated using the surrogate function 
+\begin{equation}
+    \mathbf{x}^{gen} \gets F(\mathbf{x}, \alpha^{gen}), 
+\end{equation}
+These generated images are then appended to the training data.
+This adversarial data augmentation is performed after every $N_{aug}$ epochs during which $T_{aug}$ images are generated.
+The total number of augmented samples is expressed as a percentage of the number of training samples so as to allow fair comparison across datasets and types of perturbations.
+The pseudocode for AGAT is shown in Algorithm~\ref{alg:adv_algo}.
+
+
+The distinguishing factor for \textbf{AGAT} is that we perturb the attribute space and use surrogate functions to synthesize images, while previous adversarial augmentation protocols such as M-ADA~\citep{qiao2020learning} and GUD~\citep{volpi2018generalizing} perturb only in the pixel-space, thus being restricted to $\ell_p$ perturbations.
+It is important to note that our method is agnostic to the choice of surrogate functions, which can take the form of additive noise, affine transformation in pixel-space, or conditional generative adversarial networks~\citep{mirza2014conditional} trained to transform an input image according to an input attribute vector.
+
+
+\section{Experiments}
+In this section, we introduce the three types of robustness specifications that we experiment with, along with details about the datasets, baselines, and metrics used for each.
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.99\linewidth]{agat/images/clevr_singles.pdf}
+    \caption{Examples of images from CLEVR-Singles and the color labels and (size, shape, material, position) attributes.}
+    \label{fig:clevr_singles}
+\end{figure}
+
+\input{agat/tables/clevr_splits}
+
+\begin{figure}[t]
+    \centering
+    \includegraphics[width=0.75\linewidth]{agat/images/mnist_rts_bigfont.png}
+    \caption{
+    RTS-perturbed MNIST images.
+    }
+    \label{fig:mnist_rts}
+\end{figure}
+
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Semantic Object-Level Perturbations}
+One class of real-world perturbations is when properties or attributes of images or objects in images change at test time.
+These changes do not affect the classification label, but significantly change the appearance of the image.
+For instance, consider the task of color classification in objects of varied shapes and textures. 
+Here, \textit{red metallic spheres} and \textit{red rubber cubes} both belong to the class label ``red", however may appear very different in their shapes and textures. 
+Thus, if only \textit{red metallic cubes} are seen during training, conventional classifier predictions for test images consisting of \textit{red rubber cubes} can fail to generalize. 
+Thus, although the class label is invariant to such semantic factors, robustness to perturbations along these factors is desirable.
+
+    \paragraph{Dataset:}
+
+    To study the problem of such object-level shifts along semantic factors of an image in a controlled fashion, we create a new benchmark called CLEVR-Singles\footnote{
+        Dataset: \url{https://github.com/tejas-gokhale/CLEVR-Singles}} 
+    by modifying the data generation process from CLEVR~\citep{johnson2017clevr}.
+    We create images of single objects having one of eight colors, and use color classification as our task in this paper.
+    Each object has four variable attributes that do not affect the color class of the image; these are: \textit{shape} (cube, sphere, pyramid, or cylinder), \textit{size} (small, medium, or large), \textit{material} (rubber or metal), and \textit{position} (northwest, southwest, northeast, southeast).
+    While the objects are generated at continuous $(X, Y, Z)$ world coordinates, we assign them a discrete position class for our experiments.
+    Object-level perturbations can be made over these four attributes for our robustness experiments.
+    In other words, it is known that one or more of \textit{\{shape, size, material, position\}} of the image may change at test-time without knowing the magnitude or combinations of the change.
+    We split the dataset based on a combination of attributes as shown in Table~\ref{tab:clevr_splits}; for instance only certain combinations of size and position are observed in the training set, but robustness is expected from the color classifier on unknown combinations.
+
+    \paragraph{AttGAN as the Surrogate Function:}
+    \begin{figure}
+        \centering
+        \includegraphics[width=\linewidth]{agat/images/attgan_outputs.pdf}
+        \caption{Images generated by AttGAN for the images in column 1, conditioned on attributes.
+        % : size(2-4), shape (5-8), material (9-10)
+        }
+        \label{fig:attgan}
+    \end{figure}
+    Conditional generative adversarial networks (cGANs) have been shown to perform exceptionally well on image-to-image translation in various domains~\citep{isola2017image,zhang2017stackgan,karras2019style}.
+    AttGAN~\citep{he2019attgan} is one such conditional GAN which is trained to manipulate attributes of input face images.
+    Thus given an image and a vector of desired attributes, AttGAN can manipulate the face image along the desired attribute dimensions.
+    We leverage this powerful image manipulation technique as our surrogate function $\mathbf{x}^{gen} = F_{GAN}(\mathbf{x}, \alpha)$.
+    Formally, we define the attribute vector to be a 13-dimensional binary hash-code with 1 and 0 indicating presence or absence of an attribute.
+    For each experiment, we train the AttGAN on the training dataset outlined in Table~\ref{tab:clevr_splits} to generate 128x128 images, with a learning rate of $2\mathrm{e-}4$ for 100 epochs on a single 16GB GPU.
+    Examples of images generated by AttGAN are shown in Figure~\ref{fig:attgan}, when manipulating certain attributes such as size, shape, and material of the object.
+
+    \paragraph{Baselines:}
+    For the color classification task on CLEVR-Singles images, we compare against two pixel-level domain augmentation baselines: GUD~\citep{volpi2018generalizing} which performs adversarial data augmentation to generate fictitious target domains, and M-ADA~\citep{qiao2020learning} which uses a meta-learning framework to generate multiple domains of samples.
+    We also report the performance of a classifier directly without any adversarial training as a naive baseline.
+    The same classifier architecture is used for each baseline for fair comparison.
+    All models are trained for $15$ epochs including pre-training epochs $N_{pre}=5$, batch-size $64$, and $M=15$ update steps for adversarial augmentation.
+    The number of augmented samples $T_{aug}$ is $30\%$ of the original source data, and augmentation interval $N_{aug}$ is fixed at 2 epochs.
+    For our model the coefficients in Equations~\ref{agat:eq:loss_constraint}, and~\ref{agat:eq:loss_distill} are: $\lambda_1=0.5, \lambda_2=0.5, \beta=0.25$.
+    The learning rates $\eta, \mu$ for the classifier and adversarial augmentation are both 5e-5. %$5\mathrm{e-}5$.
+
+    \paragraph{Results:}
+    \input{agat/tables/clevr_results}
+    The test classification accuracies for different splits are reported in Table~\ref{tab:clevr_results}. 
+    We observe that our model is better than all baselines considered here, with a boost of $5$ percentage points in accuracy on the harder experiment along \textit{Material+Position}.
+    
+
+
+    \paragraph{Analysis:}
+    \begin{figure}[t]
+        \centering
+        \includegraphics[width=0.58\linewidth]{agat/images/clevr_beta_viz.png}
+        \caption{Visualization of the effect of weight $\beta$ of the constraint loss $\ell_{const}$ on the generated images. Row 2 has higher $\beta$ than Row 1. Illustration also shows that AttGAN is able to generate multiple objects (of same color for Row 1 and different colors for Row 2), though absent in training data.
+        }
+        \label{fig:clevr_novel_viz}
+    \end{figure}
+    
+
+    In Figure~\ref{fig:clevr_novel_viz}, we show 8 different examples generated by AttGAN during adversarial training. We can see the effect of the coefficient $\beta$, from the constraint loss $\ell_{const}$ in eq~\eqref{agat:eq:loss_overall}, in exploring the attribute space. An appropriately chosen value for $\beta$ encourages useful perturbations without violating the class-label consistency cost $\ell_{cls}$ as seen in the top row of Figure \ref{fig:clevr_novel_viz}. On the other hand, a higher $\beta$ would mean a higher weight for exploring the regions (or combinations) in attribute space not seen in training. In the bottom row we see that a high $\beta$ encourages novel attribute exploration at the cost of higher classification error as a result of generating objects with different colors within the same image.  It is noteworthy that AttGAN is able to generate images with multiple objects, even when it trained on images with only a single object, thus demonstrating its suitability to explore novel attributes using the proposed AGAT training.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Geometric Transformations}
+Another common class of perturbations is geometric transformations, i.e. a composition of rotation, translation, and scaling of an image. These perturbations are common since cameras may capture a scene from different orientations, distances, and inclinations. It is well known that standard image classifiers are not robust to these common perturbations~\citep{cohen2014transformation}.
+
+    \paragraph{Dataset:}
+    We address this problem in the digit classification setting, with
+    the training images from MNIST~\citep{lecun1998mnist}, and the test images that are perturbed along rotation-translation-scale (RTS), as shown in Figure~\ref{fig:mnist_rts}.
+    We use the standard RTS setup~\citep{jaderberg2015spatial} with angle of rotation in $(-45, 45)^{\circ}$, translation in $(-10, 10)$ pixels in both directions, and a scale factor in the range $(0.7, 1.3)$.
+
+    \paragraph{Surrogate Function:}
+    The attributes of interest, $\alpha$, consist of a $2\times3$ affine matrix that controls rotation, translation, and scale. To perform affine transformations on the image with a perturbed $\alpha$, we use Spatial Transformer Networks (STN)~\citep{jaderberg2015spatial} which allow differentiable spatial manipulation of input images in a convolutional neural network, such as RTS and or general warping. The perturbed images are generated as: $\mathbf{x}^{gen} = F_{STN}(\mathbf{x}_s, \alpha)$.
+
+    \paragraph{Baselines:}
+    We compare the robustness performance to RTS perturbations with a naive baseline, denoted by (B), that is only trained on the standard MNIST dataset, and pixel-level perturbation methods MADA~\citep{qiao2020learning} and GUD~\citep{volpi2018generalizing}.
+    Additionally, we also use the RTS perturbation sets generated by~\citep{wong2020learning} (PS) and use them as augmented training samples. 
+    All models are trained for 12 epochs including pre-training epochs $N_{pre}=5$, with a batch-size $64$, and $M=10$ update steps for adversarial augmentation. The number of augmented samples $T_{aug}$ is $30\%$ of the original source data, and augmentation interval $N_{aug}$ is fixed at 10 epochs.
+    Our model the coefficients in Equations~\ref{agat:eq:loss_constraint}, and~\ref{agat:eq:loss_distill} are: $\lambda_1=1, \lambda_2=1, \beta=5$.
+    The learning rate $\eta$ for the classifier is $1\mathrm{e-}4$ and $\mu$ for the adversarial augmentation is $0.1$.
+
+
+    \paragraph{Results:}
+
+    \input{agat/tables/mnist_rts}
+    We report digit classification accuracies on the target test set containing only rotations (R), only translations (T), only skew (S), as well as a random combination of RTS. Our model performs well on all four metrics, and beats the perturbation sets (PS) even though their augmentation model has access to RTS perturbations during training. In particular, we observe a significant improvement compared with MADA and GUD, in the robustness on the translation experiment, which is the hardest task among the three. 
+
+    \paragraph{Analysis:}
+     \begin{figure*}
+        \centering
+        % \includegraphics[width=0.93\linewidth]{agat/images/ablation.png}
+        \includegraphics[width=0.45\linewidth]{agat/images/ablation_r.pdf}
+        \includegraphics[width=0.45\linewidth]{agat/images/ablation_t.pdf}
+        \includegraphics[width=0.45\linewidth]{agat/images/ablation_s.pdf}
+        \caption{Comparison of random RTS accuracies when controlling each parameter to a max. value. Left: R, Center: T, Right: S}
+    \end{figure*}
+    \input{agat/tables/mnist_ablation}
+    The pixel-level perturbation methods still perform reasonably well on rotation and scale experiments in Table~\ref{tab:mnist_geom} because in each case the rotations/translations/scale are randomly sampled, resulting in several test examples that are very close to the training examples (with no RTS). In order to resolve this further, we study the performance by controlling the magnitude of R, T, and S in the test set. Figure~\ref{fig:mnist_rts} shows the bar-plots when the range of rotation is varied from $(-10, 10)$ to $(-60, 60)$, translation from $(-2, 2)$ to $(-12, 12)$ pixels, and scaling factor from $(0.9, 1.1)$ to $(0.5, 1.5)$.
+    It can be observed that at higher severity of perturbation, our model (in blue) significantly outperforms all baselines.
+    The model trained with Perturbations Sets~\citep{wong2020learning} (in gray) is competitive at lower severities.
+
+    We also analyze the effect of the number of augmented samples ($T_{aug}$) expressed as a percentage of the size of the training data, while controlling for the augmentation interval $N_{aug}$. As expected, larger number of augmented samples improve robustness even higher than in table \ref{tab:mnist_geom} (which fixes number of additional augmented examples at $30\%$ for all baselines). 
+    Larger augmentation intervals contribute positively at lower percentages of augmented samples.
+    
+    Finally, we perform an ablation study with and without the consistency regularization defined in Eq~\eqref{agat:eq:loss_distill} and show that the regularization indeed helps improve performance.
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Common Image Corruptions}
+Image corruptions are another common class of perturbations. These can occur due to image digitization artifacts, weather, camera calibration, and other sources of noise.
+
+    \paragraph{Dataset:}
+    The CIFAR10 dataset~\citep{krizhevsky2009learning}
+    contains $50k$ training images belonging to $10$ classes.
+    Recently, CIFAR10-C~\citep{hendrycks2018benchmarking} which contains image corruptions for CIFAR10 images, was proposed to benchmark robustness of image classifiers, with 4 major and  15 fine-grained categories of corruption: \textit{Weather} (fog, snow, frost), \textit{Blur} (zoom, defocus, glass, motion), \textit{Noise} (shot, impulse, Gaussian), and \textit{Digital} (JPEG, pixelation, elastic transform, brightness, contrast).
+    There are five levels of severity of corruptions; we focus on the highest severity.
+
+
+    \paragraph{Surrogate Function:}
+    We use a general surrogate function -- a composition of additive Gaussian noise and Gaussian blur filter parameterized by $\mathbf{\alpha} = \{\alpha_1, \alpha_2\}$:
+    \begin{equation}
+        \mathbf{x}^{gen} = \frac{1}{\sqrt{2\pi\alpha_1^2}}e^{-\frac{\mathbf{x}^2}{2\alpha_1^2}} + n \text{, ~where~ } n\sim \mathcal{N}(0, \mathbf{\alpha}_2).
+    \end{equation}
+    We evaluate the performance gains using this surrogate function with the proposed AGAT training on the challenging CIFAR-10-C dataset.
+
+    \paragraph{Baselines:}
+    Test-Time Training (TTT)~\citep{sun2020test} is a recent approach in which a classifier is trained only on source data, but the test sample is utilized to update the classifier during inference.
+    Adversarial Logit Pairing (ALP)~\citep{kannan2018adversarial}, a technique for defending against adversarial attacks, and pixel-wise domain augmentation techniques MADA~\citep{qiao2020learning} and GUD~\citep{volpi2018generalizing} are also considered as baselines.
+    We use ResNet-26~\citep{he2016deep} specially designed for CIFAR-10~\citep{russakovsky2015imagenet}, with group normalization~\citep{wu2018group} which is stable with different batch sizes.
+    This acts as the naive classifier-only baseline (B).
+    We also consider the classifier trained with an auxiliary self-supervised task of angle prediction~\citep{gidaris2018unsupervised} (B+SS).
+    Our joint-training (JT) baseline is from TTT based on \citep{hendrycks2018benchmarking}.
+
+    We compare three versions of our model: with additive noise only, with Gaussian filtering, and with a composition of Gaussian filter and noise. 
+    Our models are trained for 150 epochs including pre-training epochs $N_{pre}\mathrm{=}100$, batch-size 128, and $M\mathrm{=}15$ update steps for adversarial augmentation.
+    The number of augmented samples is $30\%$ of the original source data, and augmentation interval $N_{aug}$ is fixed at 2 epochs.
+    For our model the coefficients in Equations~\ref{agat:eq:loss_constraint}, and~\ref{agat:eq:loss_distill} are: $\lambda_1=0.5, \lambda_2=0.5, \beta=0.25$.
+    The learning rates $\eta, \mu$ for the classifier and adversarial augmentation are both 5e-5.
+
+    \paragraph{Results:}
+    \input{agat/tables/cifar_by_category}
+    In Table~\ref{tab:cifar_cat} we show the classification accuracies on CIFAR10-C.
+    It can be seen that our method consistently outperforms all baselines overall, and also on three of the four categories of corruptions (weather, blur, and digital).
+    It is interesting to note that the ALP performance on the Noise category is distinctly greater than all previous methods, potentially because it is designed to defend against projected gradient descent adversarial attacks~\citep{madry2017towards}.
+    ALP uses a similar loss function as Equation~\ref{agat:eq:loss_distill} to train the classifier, but still operates in pixel-space and does not perturb the attribute space.
+    In Table~\ref{tab:cifar_cat} we also demonstrate that our models which uses only blur or only noise as surrogate are also better than previous state-of-the art. Note that the ``noise only'' model is in essence a pixel-level perturbation achieved by only perturbing along the variance parameter using AGAT training, and yet we see a significant boost in performance over all other pixel-level additive noise methods.
+    Similarly, the ``blur only" model also gives performance boosts on weather and digital categories, further indicating the general applicability of our AGAT training approach.
+
+
+\section{Discussion}
+% \section{Conclusion}
+% %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+% In this paper, we propose a new adversarial training strategy for robustness against large perturbations that are common in practical settings.
+% Our adversarial training algorithm perturbs the attribute space to synthesize new images instead of pixel-level perturbations which are common to the robustness literature.
+% The new CLEVR-Singles dataset that we have created can be used in future work for studying robustness to semantic shifts.
+% We extensively evaluate AGAT training on three benchmarks and achieve state-of-the-art performance.
+% We empirically show that AGAT is applicable to a three types of naturally occurring perturbations, and can be used with different classes of surrogate functions.
+% AGAT can potentially be applied to a broad range of robustness problems not limited to classification.
+
+% \section*{Acknowledgments} 
+% This work was performed under the auspices of the U.S. Department of Energy by the Lawrence Livermore National Laboratory under Contract No. DE-AC52-07NA27344, Lawrence Livermore National Security, LLC. This document was prepared as an account of the work sponsored by an agency of the United States Government. Neither the United States Government nor Lawrence Livermore National Security, LLC, nor any of their employees makes any warranty, expressed or implied, or assumes any legal liability or responsibility for the accuracy, completeness, or usefulness of any information, apparatus, product, or process disclosed, or represents that its use would not infringe privately owned rights. Reference herein to any specific commercial product, process, or service by trade name, trademark, manufacturer, or otherwise does not necessarily constitute or imply its endorsement, recommendation, or favoring by the United States Government or Lawrence Livermore National Security, LLC. The views and opinions of the authors expressed herein do not necessarily state or reflect those of the United States Government or Lawrence Livermore National Security, LLC, and shall not be used for advertising or product endorsement purposes. This work was supported by LLNL Laboratory Directed Research and Development project 20-ER-014 and released with LLNL tracking number LLNL-JRNL-814425.
+
+% \section*{Broader Impact}
+% The concept of robustness is critical when it comes to deploying machine learning systems in practical settings where input signals may undergo perturbations due to weather (such as fog, smog, rain), digital corruptions in transmission, or changes in camera inclinations causing geometric transformations or artifacts such as defocusing, or motion blur.
+% Our method for developing robust classifiers is broadly applicable if such classes of perturbations are known \textit{a priori}.
+
+% Robustness research is also crucial for avoiding or removing unintended biases that may percolate from the training data into the classification model.
+% Recent studies~\cite{bolukbasi2016man,zhao2017men,hendricks2018women} have shown that models trained on biased data can in fact amplify this bias when performing inference on test samples.
+% We believe that work in the lines of AGAT could be potentially used for mitigating social biases due to biased training data, such as gender or racial biases.

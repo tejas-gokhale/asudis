@@ -1,5 +1,6 @@
+
 % Dissertation style file by John Shumway.
-% Attempts to meet requirements of the Graduate College of Arizona State 
+% Attempts to meet requirements of the Graduate Education of Arizona State 
 % University
 % No guarantees - PLEASE CHECK FORMAT CAREFULLY!
 % 
@@ -15,30 +16,24 @@ letterpaper}%,showframe,showcrop}
 % Define singlespace and doublespace commands for 12pt fonts.
 %
 \newcommand{\doublespace} {
-  \renewcommand{\baselinestretch}{1.66}\small\normalsize
-}
-\newcommand{\exactdoublespace} {
-  \renewcommand{\baselinestretch}{1.8}\small\normalsize
+\renewcommand{\baselinestretch}{1.66}\small\normalsize
 }
 \newcommand{\oneandhalfspace} {
-  \renewcommand{\baselinestretch}{1.24}\small\normalsize
+\renewcommand{\baselinestretch}{1.24}\small\normalsize
 }
 \newcommand{\singlespace} {
-  \renewcommand{\baselinestretch}{0.9}\small\normalsize
+\renewcommand{\baselinestretch}{0.9}\small\normalsize
 }
 \singlespace
 
 %
 % Title page.
 %
-% Define "\defensemonth" "\defenseyear" "\gradmonth" "\gradyear" commands for 
-% title page.
+% Define "\defensemonth" "\gradmonth" "\gradyear" commands for title page.
 \title{\tt$\backslash$\string title}
 \author{\tt$\backslash$\string author}
 \newcommand{\defensemonth}[1]{\renewcommand{\@defensemonth}{#1}}
 \newcommand{\@defensemonth}{\tt$\backslash$\string defensemonth}
-\newcommand{\defenseyear}[1]{\renewcommand{\@defenseyear}{#1}}
-\newcommand{\@defenseyear}{\tt$\backslash$\string defenseyear}
 \newcommand{\gradmonth}[1]{\renewcommand{\@gradmonth}{#1}}
 \newcommand{\@gradmonth}{\tt$\backslash$\string gradmonth}
 \newcommand{\gradyear}[1]{\renewcommand{\@gradyear}{#1}}
@@ -55,81 +50,83 @@ letterpaper}%,showframe,showcrop}
 \newcommand{\memberFour}[1]{\renewcommand{\@memberFour}{#1}}
 \newcommand{\@memberFour}{\tt$\backslash$\string memberFour}
 % Define "\degreeName" command for Title Page.
-% (should set to degree title eg "Doctor of Philosophy")
+% (should set to "Doctor of Philosophy")
 \newcommand{\degreeName}[1]{\renewcommand{\@degreeName}{#1}}
 \newcommand{\@degreeName}{\tt$\backslash$\string degreeName}
-% Define "\paperType" command for Title Page.
-% (should set to "Dissertation" or "Thesis)
-\newcommand{\paperType}[1]{\renewcommand{\@paperType}{#1}}
-\newcommand{\@paperType}{\tt$\backslash$\string paperType}
 %
 % Redefine maketitle
 \newlength{\fiveblanklines}\setlength{\fiveblanklines}{0.7 in}
 \newlength{\tenblanklines}\setlength{\tenblanklines}{1.5 in}
 \renewcommand\maketitle{
-  \enlargethispage{0.5in} %make extra room where page number would go
-  \thispagestyle{empty}
-  \noindent
+\enlargethispage{0.5in} %make extra room where page number would go
+\thispagestyle{empty}
+\noindent
   \begin{minipage}[t][647.0truept][t]{\linewidth}
-  \exactdoublespace
   \begin{center}
-    \@title\\
-    by\\
-    \@author
-  \end{center}
-  \singlespace
-  \vspace{\fiveblanklines}
-  \begin{center}
-    \singlespace
-	A \@paperType\ Presented in Partial Fulfillment\\
-	of the Requirements for the Degree\\
-	\@degreeName
-  \end{center}
-  \vspace{\tenblanklines}
-  \begin{center}
-    \singlespace
-    Approved \@defensemonth\ \@defenseyear\ by the\\
-    Graduate Supervisory Committee:\\
-    \ \\
-    \@chair,  Chair\\
-    \@memberOne\\
-    \@memberTwo\\
-    \@memberThree\\
-    \@memberFour
-  \end{center}
-   \vfill
-   \begin{center}
-   \doublespace
-   ARIZONA STATE UNIVERSITY\\
-   \@gradmonth\ \@gradyear
-   \end{center} 
+  \@title\\ \ \\
+by\\ \ \\
+\@author
+\end{center}
+\vspace{\fiveblanklines}
+\begin{center}
+\singlespace
+A Thesis Presented in Partial Fulfillment\\
+of the Requirements for the Degree\\
+\@degreeName
+\end{center}
+\vspace{\tenblanklines}
+\begin{center}
+\singlespace
+Approved \@defensemonth\ \@gradyear\ by the\\
+Graduate Supervisory Committee:\\
+\ \\
+\@chair\\
+\end{center}
+\vfill
+\begin{center}
+\doublespace
+ARIZONA STATE UNIVERSITY\\
+\@gradmonth\ \@gradyear
+\end{center} 
 \end{minipage}
 \clearpage
 }
-
+		
 %
 % redefine abstract environment
 %
 \renewenvironment{abstract}{
-  \setcounter{page}{1}
-  \begin{center}
-    \doublespace
-    ABSTRACT
-  \end{center}
+\setcounter{page}{1}
+\begin{center}
+\doublespace
+ABSTRACT
+\end{center}
 } {
-  \clearpage
+\clearpage
 }
 
 %
 % make acknowledgements environment
 %
 \newenvironment{acknowledgements}{
-  \begin{center}
-    \doublespace
-    ACKNOWLEDGMENTS
-  \end{center}
+\begin{center}
+\doublespace
+ACKNOWLEDGMENTS
+\end{center}
 } {
-  \clearpage
+\clearpage
+}
+		
+%
+% define \acknowledgementpage
+%
+\newcommand{\acknowledgementpage}[1]{
+\begin{center}
+\doublespace
+ACKNOWLEDGMENTS
+{\itshape #1}
+\end{center}
+\clearpage
 }
 
 %
@@ -140,12 +137,60 @@ letterpaper}%,showframe,showcrop}
 %\centerline{\itshape #1}\clearpage
 \newcommand{\dedicationpage}[1]{
 \begin{center}
-   \doublespace
-   {\itshape #1}
+\doublespace
+DEDICATION
+{\itshape #1}
 \end{center}
+\clearpage	
+}
+		
+%
+% define \blankpage
+%
+\newcommand{\blankpage}{
+\begin{center}
+\doublespace
+\end{center}
+} {
 \clearpage
 }
-
+		
+%
+% define Preface Page
+%
+\newcommand{\prefacepage}[1]{
+\begin{center}
+\doublespace
+PREFACE
+{\itshape #1}
+\end{center}
+\clearpage	
+}
+			
+%		
+% Define Symbols Page
+%
+\newcommand{\symbolspage}[1]{
+\begin{center}
+\doublespace
+LIST OF SYMBOLS
+{\\Symbol~\hfill Page \par}
+\end{center}
+\clearpage	
+}
+		
+%		
+% Define Biographical Page
+%
+\newcommand{\biographicalpage}[1]{
+\begin{center}
+\doublespace
+BIOGRAPHICAL SKETCH
+{\itshape #1}
+\end{center}
+\clearpage	
+}
+		
 %
 % Fix the table of contents
 %
@@ -201,18 +246,28 @@ letterpaper}%,showframe,showcrop}
 %
 % Get the header on subsequent pages right.
 \renewcommand{\@cfttocstart}{ 
-   \newgeometry{top=1.0in,hmargin=1.25in,height=9.0in,
-   includehead,includefoot,letterpaper}%,showcrop,showframe}
+\newgeometry{top=1.0in,hmargin=1.25in,height=9.0in,
+includehead,includefoot,letterpaper}%,showcrop,showframe}
 
-   \doublespace
-   \pagestyle{fancyplain}
-   \afterpage{\lhead{\cftlabel}\rhead{Page}}
+\doublespace
+\pagestyle{fancyplain}
+\afterpage{\lhead{\cftlabel}\rhead{Page}}
 }
 
 \renewcommand{\@cfttocfinish}{
-   \restoregeometry\clearpage\afterpage{\lhead{}\rhead{}}
+\restoregeometry\clearpage\afterpage{\lhead{}\rhead{}}
 }
 %
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%
+%\setlength{\cftbeforelostitleskip}{-64.0truept}
+%\setlength{\cftafterlostitleskip}{0truept}
+%
+%\renewcommand{\listsymbolname}{LIST OF SYMBOLS}
+%\renewcommand{\cftlostitlefont}{\hfill\normalsize\rm}
+%\renewcommand{\cftafterlostitle}{\hfill}
+% 
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 % Get the title for the LOT normal sized, centered, and at the right height.
 %
 \setlength{\cftbeforelottitleskip}{-64.0truept}
@@ -238,25 +293,25 @@ letterpaper}%,showframe,showcrop}
 % have a command for this so a hack is necessary.
 %
 \def\@chapter[#1]#2{\ifnum \c@secnumdepth >\m@ne
-                        \refstepcounter{chapter}%
-                        \typeout{\@chapapp\space\thechapter.}%
-                        \addcontentsline{toc}{chapter}%
-                        {\protect\numberline{\thechapter}{\texorpdfstring{\MakeUppercase{#1}}{}}}%
-                    \else
-                        \addcontentsline{toc}{chapter}{#1}%
-                    \fi
-                    \chaptermark{#1}%
+\refstepcounter{chapter}%
+\typeout{\@chapapp\space\thechapter.}%
+\addcontentsline{toc}{chapter}%
+{\protect\numberline{\thechapter}#1}%
+\else
+\addcontentsline{toc}{chapter}{#1}%
+\fi
+\chaptermark{#1}%
 
-                    %These two lines below are commented out.
+%These two lines below are commented out.
 
-                    %\addtocontents{lof}{\protect\addvspace{10\p@}}%
-                    %\addtocontents{lot}{\protect\addvspace{10\p@}}%
-                    \if@twocolumn
-                      \@topnewpage[\@makechapterhead{#2}]%
-                    \else
-                      \@makechapterhead{#2}%
-                      \@afterheading
-                    \fi}
+%\addtocontents{lof}{\protect\addvspace{10\p@}}%
+%\addtocontents{lot}{\protect\addvspace{10\p@}}%
+\if@twocolumn
+\@topnewpage[\@makechapterhead{#2}]%
+\else
+\@makechapterhead{#2}%
+\@afterheading
+\fi}
 
 %
 % Change some of the rules for float placement.
@@ -268,8 +323,8 @@ letterpaper}%,showframe,showcrop}
 \renewcommand{\topfraction}{0.9}    %Top float max size is 70%
 \renewcommand{\bottomfraction}{0.8} %Bottom float max size is 70%
 \renewcommand{\floatpagefraction}{0.7}
-
-
+		
+		
 %
 % Fix chapter and section formats
 %
@@ -287,23 +342,23 @@ letterpaper}%,showframe,showcrop}
 % Center and italicize subsection titles
 \renewcommand{\subsection}{\@startsection{subsection}{2}{0 in}{1em}{1em}
 {\centering\slshape}}
-
+		
 % This is a bit of a hack.  I couldn't figure out a better way, but surely there
 % is one.  What I want is for the title page of the appendix to appear with
 % just one double space between the words "Appendix A" and the title.  So, here,
 % I redefine the command with our \singlespace command, and then inside the 
 % actual appendix, I use \doublespace.  This gets the spacing of the appendix
 % title page right.
-
+		
 \renewcommand\appendix{\par
-   \setcounter{chapter}{0}%
-   \setcounter{section}{0}%
-   \gdef\@chapapp{\appendixname}%
-   \gdef\thechapter{\@Alph\c@chapter}
+\setcounter{chapter}{0}%
+\setcounter{section}{0}%
+\gdef\@chapapp{\appendixname}%
+\gdef\thechapter{\@Alph\c@chapter}
    
-   % I added this line.
+% I added this line.
 
-   \singlespace}
+\singlespace}
 
 %
 % Fix bibliography header.
@@ -312,23 +367,11 @@ letterpaper}%,showframe,showcrop}
 \renewcommand\bibsection{
 \begin{center}\uppercase\expandafter{\bibname}\vspace{1em}\end{center}
 }
-
+		
 %
 % Modify figure captions so that they print singlespace.
 %
 \renewcommand{\@makecaption}[2]{% #1 is e.g. Figure 1, #2 is captiontext
-  \singlespace
-  {\textbf{#1:} #2\par}
+\singlespace
+{\textbf{#1:} #2\par}
 }
-
-%
-% Modify footnotes to be single spaced per footnote, double in between
-%
-
-\setlength{\footnotesep}{\baselineskip} %double space between footnotes
-
-\let\oldfootnoterule\footnoterule %dont put a gap between the line and the first footnote
-\def\footnoterule{\oldfootnoterule\vspace{-0.2\baselineskip}}
-
-\let\oldfn\footnote   %single space individual footnotes
-\renewcommand{\footnote}[1]{\singlespace\oldfn{#1}\doublespace}

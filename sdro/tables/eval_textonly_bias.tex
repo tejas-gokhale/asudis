@@ -1,0 +1,19 @@
+\begin{table}
+    \centering
+    % \footnotesize
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l ccc c ccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Method}} & \multicolumn{3}{c}{NLVR2} & \hphantom & \multicolumn{3}{c}{VIOLIN} \\ 
+         \cmidrule{2-4} \cmidrule{6-8}
+         & Clean & SP & SI && Clean & SP & SI \\
+         \midrule 
+        Data-Aug & 51.07 & 50.92 & 40.74 && 61.12 & 62.78 & 62.15 \\
+        SW-SDRO  & 51.14 & 50.97 & 40.75 && 62.78 & 58.13 & 64.78 \\
+        GW-SDRO  & 51.07 & 50.92 & 40.73 && 62.15 & 52.79 & 74.98 \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{Text-only evaluation of biases due to SISP transformations. $50\%$ indicates no bias.}
+    \label{tab:eval_textonly_bias}
+\end{table}

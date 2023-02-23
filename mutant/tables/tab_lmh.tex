@@ -1,0 +1,24 @@
+\begin{table}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}p{2.65cm}p{1.1cm}cccc@{}}
+        \toprule 
+        \multirow{2}{*}{Model} & \multirow{2}{*}{Method} & \multicolumn{4}{c}{VQA-CP v2 test $\uparrow$ (\%)}\\
+        \cmidrule{3-6}
+        & & All & Yes/No & Num & Other \\
+        \toprule
+        UpDn + Ours    & Base   & 61.72 & 88.90 & 49.68 & 50.78 \\
+        UpDn + Ours    & LMH    & 55.38 & 90.99 & 39.74 & 40.99 \\
+        \hdashline
+        \multicolumn{2}{c}{\textit{Drop in Accuracy}} & \textit{6.34} & \textit{-2.09} & \textit{9.95} & \textit{9.80}\\
+        \midrule
+        LXMERT + Ours & Base    & 69.52 & 93.16 & 67.17 & 57.78 \\
+        LXMERT + Ours & LMH     & 63.85 & 88.34 & 48.23 & 55.28\\
+        \hdashline
+        \multicolumn{2}{c}{\textit{Drop in Accuracy}} & \textit{5.67} & \textit{4.82} & \textit{18.86} & \textit{2.50} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Effect of combining LMH de-biasing with the Mutant paradigm, measured as drop in accuracy (\%)}
+    \label{tab:lmh}
+\end{table}

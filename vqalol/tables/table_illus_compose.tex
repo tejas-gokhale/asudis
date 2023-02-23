@@ -1,0 +1,24 @@
+\begin{table}[!t]
+    \centering
+    \begin{tabular}{@{}lp{8.6cm}lc@{}}
+    \toprule 
+    \textbf{QF} & \textbf{Question} & \textbf{AF} & \textbf{Answer}\\
+    \midrule
+    $Q_1$                       & Is there beer?                                    & $A_1$     & Yes \\
+    $Q_2$                       & Is the man wearing shoes?                         & $A_2$     & No \\
+    ${\neg}Q_1$                  & Is there no beer?                                 & ${\neg}A_1$ & No\\
+    ${\neg}Q_2$                  & Is the man not wearing shoes?                     & ${\neg}A_2$ & Yes\\
+    $Q_1{\wedge}Q_2$            & Is there beer and is the man wearing shoes?       & $A_1{\wedge}A_2$ & No \\
+    $Q_1{\vee}Q_2$              & Is there beer or is the man wearing shoes?        & $A_1{\vee}A_2$ & Yes \\
+    $Q_1{\wedge}{\neg}Q_2$       & Is there beer and is the man not wearing shoes?   & $A_1{\wedge}{\neg}A_2$ & Yes \\
+    $Q_1{\vee}{\neg}Q_2$         & Is there beer or is the man not wearing shoes?    & $A_1{\vee}{\neg}A_2$ & Yes \\
+    ${\neg}Q_1{\wedge}Q_2$       & Is there no beer and is the man wearing shoes?    & ${\neg}A_1{\wedge}A_2$ & No \\
+    ${\neg}Q_1{\vee}Q_2$         & Is there no beer or is the man wearing shoes?     & ${\neg}A_1{\vee}A_2$ & No \\
+    ${\neg}Q_1{\wedge}{\neg}Q_2$  & Is there no beer and is the man not wearing shoes?& ${\neg}A_1{\wedge}{\neg}A_2 $ & No \\
+    ${\neg}Q_1{\vee}{\neg}Q_2$    & Is there no beer or is the man not wearing shoes? & ${\neg}A_1{\vee}{\neg}A_2$ & Yes \\
+    \bottomrule
+    \end{tabular}
+    \caption{Illustration of question composition in \texttt{VQA-Compose}, for the same example as in Figure \ref{fig:motivation}.
+    QF: Question Formula, AF: Answer Formula}
+    \label{tab:compose}
+\end{table}

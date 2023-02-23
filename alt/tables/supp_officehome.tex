@@ -1,0 +1,85 @@
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on Office-Home for the R$\rightarrow$ACP setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Real$^\star$}    & \textbf{Art} & \textbf{Clipart}  & \textbf{Product}       & \textbf{Target Avg.}  & \textbf{Office-Home Avg.} \\
+        \midrule
+        RandConv            & 83.028 \tiny{$\pm$2.067} & 59.021	\tiny{$\pm$0.916} &	47.269	\tiny{$\pm$1.251} &	72.172	\tiny{$\pm$0.418} &	59.487	\tiny{$\pm$0.792} &	65.372	\tiny{$\pm$1.096}\\
+        AugMix              & 87.294 \tiny{$\pm$1.21} &	64.101	\tiny{$\pm$0.882} &	47.564	\tiny{$\pm$0.158} &	75.956	\tiny{$\pm$0.32} &	62.54	\tiny{$\pm$0.345} &	68.729	\tiny{$\pm$0.490}\\
+        RandConv + AugMix   & 81.514 \tiny{$\pm$0.515} & 59.167	\tiny{$\pm$0.722} &	48.180	\tiny{$\pm$1.024} &	71.166	\tiny{$\pm$0.445} &	59.504	\tiny{$\pm$0.256} &	65.007	\tiny{$\pm$0.226}\\
+        \midrule 
+        ALT$_{g-only}$      & 86.514 \tiny{$\pm$0.622} & 64.622	\tiny{$\pm$0.490} &	53.327	\tiny{$\pm$0.344} &	76.276	\tiny{$\pm$0.117} &	64.742	\tiny{$\pm$0.122} &	70.185	\tiny{$\pm$0.138}\\
+        ALT$_{RandConv}$    & 87.477 \tiny{$\pm$1.042} & 64.879	\tiny{$\pm$0.439} &	53.097	\tiny{$\pm$0.554} &	76.066	\tiny{$\pm$0.447} &	64.681	\tiny{$\pm$0.290} &	70.380	\tiny{$\pm$0.312}\\
+        ALT$_{AugMix}$      & 86.560 \tiny{$\pm$0.980} & 64.860	\tiny{$\pm$0.267} &	53.271	\tiny{$\pm$0.799} &	76.286	\tiny{$\pm$0.347} &	64.806	\tiny{$\pm$0.327} &	70.244	\tiny{$\pm$0.461}\\
+        \bottomrule
+    \end{tabular}
+    
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_oh_R}
+\end{table*}
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on Office-Home for the A$\rightarrow$RCP setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Real}    & \textbf{Art$^\star$} & \textbf{Clipart}  & \textbf{Product}       & \textbf{Target Avg.}  & \textbf{Office-Home Avg.} \\
+        \midrule 
+        RandConv            & 66.915 \tiny{$\pm$1.069} & 72.428	\tiny{$\pm$2.066} & 42.387	\tiny{$\pm$1.405} &	55.045	\tiny{$\pm$1.547} &	54.782	\tiny{$\pm$1.297} &	59.194	\tiny{$\pm$1.427}\\
+        AugMix              & 71.887 \tiny{$\pm$0.432} & 80.494	\tiny{$\pm$1.342} &	45.314	\tiny{$\pm$0.768} &	61.882	\tiny{$\pm$0.382} &	59.694	\tiny{$\pm$0.427} &	64.894	\tiny{$\pm$0.369}\\
+        RandConv + AugMix   & 65.620 \tiny{$\pm$0.632} & 71.852	\tiny{$\pm$1.758} &	42.606	\tiny{$\pm$1.026} &	54.434	\tiny{$\pm$0.774} &	54.22	\tiny{$\pm$0.617} &	58.628	\tiny{$\pm$0.862}\\
+        \midrule 
+        ALT$_{g-only}$      & 71.193 \tiny{$\pm$0.308} & 78.93	\tiny{$\pm$1.146} & 47.340	\tiny{$\pm$0.331} &	61.151	\tiny{$\pm$0.561} &	59.895	\tiny{$\pm$0.283} & 64.654	\tiny{$\pm$0.259}\\
+        ALT$_{RandConv}$    & 71.754 \tiny{$\pm$0.286} & 78.025	\tiny{$\pm$1.181} &	48.328	\tiny{$\pm$0.787} &	61.186	\tiny{$\pm$0.429} &	60.423	\tiny{$\pm$0.280} &	64.823	\tiny{$\pm$0.474}\\
+        ALT$_{AugMix}$      & 71.122 \tiny{$\pm$0.540} & 79.095	\tiny{$\pm$1.634} &	48.058	\tiny{$\pm$0.632} &	61.156	\tiny{$\pm$0.813} &	60.112	\tiny{$\pm$0.590} & 64.858	\tiny{$\pm$0.518}\\
+        \bottomrule
+    \end{tabular}
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_oh_A}
+\end{table*}
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on Office-Home for the C$\rightarrow$RAP setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Real}    & \textbf{Art} & \textbf{Clipart$^\star$}  & \textbf{Product}       & \textbf{Target Avg.}  & \textbf{Office-Home Avg.} \\
+        \midrule 
+        RandConv            & 58.944 \tiny{$\pm$0.521} & 44.741	\tiny{$\pm$0.714} & 80.320	\tiny{$\pm$1.073} &	56.211	\tiny{$\pm$1.141} &	53.299	\tiny{$\pm$0.711} &	60.054	\tiny{$\pm$0.771}\\
+        AugMix              & 62.244 \tiny{$\pm$0.526} & 49.309	\tiny{$\pm$0.879} &	81.510	\tiny{$\pm$0.885} &	58.939	\tiny{$\pm$0.584} &	56.831	\tiny{$\pm$0.530} &	63.000	\tiny{$\pm$0.454}\\
+        RandConv + AugMix   & 57.914 \tiny{$\pm$0.730} & 43.698	\tiny{$\pm$0.511} &	77.986	\tiny{$\pm$1.087} &	55.040	\tiny{$\pm$0.683} &	52.217	\tiny{$\pm$0.249} & 58.660	\tiny{$\pm$0.417}\\
+        \midrule 
+        ALT$_{g-only}$      & 61.968 \tiny{$\pm$0.849} & 49.977	\tiny{$\pm$0.987} &	80.320	\tiny{$\pm$1.073} &	58.779	\tiny{$\pm$0.743} &	56.908	\tiny{$\pm$0.808} &	62.761	\tiny{$\pm$0.733}\\
+        ALT$_{RandConv}$    & 62.264 \tiny{$\pm$0.560} & 50.133	\tiny{$\pm$0.956} &	80.732	\tiny{$\pm$0.637} &	58.819	\tiny{$\pm$0.558} &	57.072	\tiny{$\pm$0.539} &	62.987	\tiny{$\pm$0.455}\\
+        ALT$_{AugMix}$      & 61.841 \tiny{$\pm$0.382} & 50.426	\tiny{$\pm$1.070} & 80.824	\tiny{$\pm$0.510} &	58.839	\tiny{$\pm$0.559} & 57.035	\tiny{$\pm$0.580} & 62.982	\tiny{$\pm$0.526}\\
+        \bottomrule
+    \end{tabular}
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_oh_C}
+\end{table*}
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on Office-Home for the P$\rightarrow$RAC setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Real}    & \textbf{Art} & \textbf{Clipart}  & \textbf{Product$^\star$}       & \textbf{Target Avg.}  & \textbf{Office-Home Avg.} \\
+        \midrule 
+        RandConv            & 66.318 \tiny{$\pm$0.240} &	43.524	\tiny{$\pm$0.664} &	43.365	\tiny{$\pm$1.058} & 90.135	\tiny{$\pm$0.643} &	51.069	\tiny{$\pm$0.607} &	60.836	\tiny{$\pm$0.372}\\
+        AugMix              & 71.515 \tiny{$\pm$0.706} & 50.041	\tiny{$\pm$0.688} &	42.596	\tiny{$\pm$0.619} &	91.622	\tiny{$\pm$0.263} &	54.717	\tiny{$\pm$0.518} & 63.943	\tiny{$\pm$0.453}\\
+        RandConv + AugMix   & 65.523 \tiny{$\pm$0.753} & 43.240	\tiny{$\pm$1.454} &	41.710 \tiny{$\pm$0.621} &	89.459	\tiny{$\pm$0.785} &	50.158	\tiny{$\pm$0.900} &	59.983	\tiny{$\pm$0.865}\\
+        \midrule 
+        ALT$_{g-only}$      & 70.082 \tiny{$\pm$0.532} & 48.842	\tiny{$\pm$0.648} &	46.877	\tiny{$\pm$0.552} &	91.306	\tiny{$\pm$0.544} &	55.267	\tiny{$\pm$0.302} &	64.277	\tiny{$\pm$0.171}\\
+        ALT$_{RandConv}$    & 70.530 \tiny{$\pm$0.359} & 49.208	\tiny{$\pm$0.418} &	47.025	\tiny{$\pm$0.498} &	91.577	\tiny{$\pm$0.506} &	55.588	\tiny{$\pm$0.300} &	64.585	\tiny{$\pm$0.212}\\
+        ALT$_{AugMix}$      & 70.637 \tiny{$\pm$0.301} & 49.318	\tiny{$\pm$1.008} &	47.554	\tiny{$\pm$0.458} &	91.396	\tiny{$\pm$0.798} &	55.837	\tiny{$\pm$0.383} &	64.726	\tiny{$\pm$0.361}\\
+        \bottomrule
+    \end{tabular}
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_oh_P}
+\end{table*}

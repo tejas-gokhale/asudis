@@ -1,0 +1,72 @@
+\section{Experiments}
+
+
+We validate our approach in this section with extensive empirical analysis using three popularly used domain generalization benchmarks. We follow this up with a detailed analysis of the behavior of ALT and its constituent parts. 
+
+
+\paragraph{Datasets.}
+The SSDG setup is as follows: we train on a single dataset as the source domain, and evaluate its performance on unobserved target (or test) domains with no access to any data from them during training. We demonstrate the effectiveness of our approach using three popular domain generalization benchmark datasets which we describe next -- (a) \textit{Digits}, we use follow the setting from Volpi~ \textit{et al.}~\citep{volpi2018generalizing} and use 1000 images from MNIST~\citep{lecun1998mnist} as the source dataset, and USPS~\citep{denker1988neural}, SVHN~\citep{netzer2011reading}, MNIST-M and SYNTH~\citep{ganin2015unsupervised} as the target datasets; (b) \textit{PACS:} Our second benchmark is the PACS dataset~\citep{li2017deeper} which consists of images belonging to 7 classes from 4 domains (P: photo, A: art painting, C: cartoon, S: sketch); and finally (c) \textit{Office-Home:} Our third benchmark is OfficeHome~\citep{venkateswara2017deep}, which consists of images belonging to 65 classes from 4 domains (A: art, C: clipart, R: real, P: product). 
+%In all of these cases, we train models on each individual domain, while testing on the remaining domains and report the average accuracy across all domains as the domain generalization performance of the benchmark, repeated over for 5 random seeds.
+
+\paragraph{Evaluation.}
+For all datasets, we train models on each individual domain, while testing on the remaining domains. We provide fine-grained results on each test set as well as the average domain generalization performance. Accuracy is reported as the mean over 5 repetitions of the experiment with random seeds. We compare with several state-of-the-art techniques on single source domain generalization and compare three variants of our methods: ALT$_{g-only}$ refers to the simplest form of our method that only uses the adversary network during training without an explicit diversity module $r$. ALT$_{RandConv}$ and ALT$_{AugMix}$ utilize RandConv and AugMix, respectively, as the diversity module, where the consistency is now placed 
+% on three terms 
+as explained in \eqref{alt:eq:L_KL}.
+% We report the mean and standard deviation of performance for 5 repetitions,
+
+
+\input{alt/tables/results_digits}
+\subsection{Digits}
+\paragraph{Baselines.}
+Our baselines include a na\"ive ``source-only'' baseline which is trained using expected risk minimization (ERM) on the source dataset, M-ADA~\citep{qiao2020learning} -- an adversarial data augmentation method, and AugMix~\citep{hendrycks2019augmix} 
+and RandConv~\citep{xu2020robust} which exploit diversity through consistency constraints.
+We use DigitNet~\citep{volpi2018generalizing} as the model architecture for all models for a fair comparison.
+All models are trained for $T{=}10000$ iterations, with batch-size of $32$, learning rate of $0.0001$, using the \texttt{Adam} optimizer.
+For ALT, we set the consistency coefficient $\lambda_{KL}{=}0.75$, adversarial learning rate $\eta_{adv}{=}5e{-}6$, number of adversarial steps $m_{adv}{=}10$, and equal weight $w_r{=}1.0$ for diversity and adversary networks.
+
+\paragraph{Results.}
+Table~\ref{tab:results_digits} shows the comparison between our method and prior art on the Digits benchmark.
+Previous pixel-level adversarial training approaches (ADA and M-ADA) offer only marginal improvements over the na\"ive ERM baseline. The results for diversity-promoting data augmentation methods are mixed -- while AugMix is only $1.09\%$ better than ERM, RandConv provides a significant boost. Interestingly, the base version of our approach, ALT$_{g-only}$, which is exclusively based on adversarial training, is significantly better than pixel-level adversarial training.
+More importantly, it is also better than diversity method AugMix, while performing lower than RandConv by a small margin $-0.39\%$.
+When we trained ALT with  adaptive diversity (ALT$_{RandConv}$ and ALT$_{AugMix}$), we achieved the best performance, beating previous state-of-the-art by $0.99\%$ and $1.50\%$ respectively.
+The hardest target domains on this benchmark have been SVHN and SYNTH, both of which are obtained from real-world images of street signs or house number signs.
+On the other hand, USPS is closely correlated with MNIST, both being black-and-white, centered images of handwritten digits, while MNIST-M is derived from MNIST but with different backgrounds. AugMix fares poorly on both real-world datasets, but is able to generalize well to MNIST-M and USPS. However ALT is able to use its adversary network in combination with AugMix, resulting in an overall improvement.
+
+\begin{figure*}
+    \centering
+    \includegraphics[width=\linewidth]{alt/figures/digits_hyperparam.png}
+    \caption{\small{\textbf{Ablation Analysis:} We study the effect of each hyper-parameter in ALT on the average accuracy using the Digits benchmark. For each experiment we show 1 standard deviation around the mean over 5 runs. We observe that the consistency (left most) is generally important until a certain point, after which it becomes harmful; (left center) taking more adversarial steps improves performance; (right center) similarly, a small learning rate is preferred in training the adversary network, $g$, and performance degrades as the learning rate increases; (right most) Surprisingly, we find that the trade-off between diversity and ALT is non- trivial and dataset dependent.}}
+    \label{fig:digits_hp}
+\end{figure*}
+
+\input{alt/tables/results_pacs}
+\subsection{PACS}
+\footnotetext{$^*$standard deviation values are in the supplementary material.}
+\paragraph{Baselines.}
+Our baselines include JiGen~\citep{carlucci2019domain}, adversarial data augmentation (ADA)~\citep{volpi2018generalizing}, AugMix, RandConv, and SagNet~\citep{nam2021reducing} which is designed to reduce style bias using normalization techniques.
+We use ResNet18~\citep{he2016deep} pre-trained on ImageNet as our model architecture and train all models for $2000$ iterations with batch-size of $32$, learning rate $0.004$, \texttt{SGD} optimizer with cosine annealing learning rate scheduler, weight decay of $0.0001$, and momentum $0.9$.
+For ALT, we set consistency coefficient $\lambda_{KL}{=}0.75$, adversarial learning rate $\eta_{adv}{=}5e{-}5$, number of adversarial steps $m_{adv}{=}10$ and $w_r{=}1.0$.
+
+\paragraph{Results.}
+Results are shown in Table~\ref{tab:results_pacs}.
+We observe that ALT without a diversity module (ALT$_{g-only}$) surpasses generalization performance of all prior methods including diversity methods RandConv and AugMix and the previous best SagNet~\citep{nam2021reducing}.
+ALT with adaptive diversity further improves the results and ALT$_{AugMix}$ establishes a new state-of-the-art accuracy of $64.7\%$.
+The most difficult target domains for previous methods has been \textit{Sketch (S)} since this is a set of rough human-drawn black-and-white sketches of real-life objects; the difficluty can be observed in terms of performance in columns $A{\rightarrow}S$, $C{\rightarrow}S$, and $P{\rightarrow}S$.
+ALT significantly improves the performance on the sketch target domain, compared to the previous best.
+ALT is also the best when generalizing from photos as the source to C,S,A as targets.
+This is a very realistic setting since large-scale natural image datasets such as ImageNet~\citep{deng2009imagenet} are widely used and publicly available, while datasets for sketches, cartoons, and painting are not.
+
+\input{alt/tables/results_officehome}
+\subsection{Office-Home}
+\paragraph{Baselines.}
+For PACS, we follow the protocol from the previous state-of-the-art Sagnet~\citep{nam2021reducing} and use ResNet50 as the model architecture.
+% and identical training settings and hyperparameters as PACS.
+Note that we do not perform any hyperparameter tuning for OfficeHome and directly apply identical training settings and hyperparameters from PACS.
+
+\paragraph{Results.}
+Table~\ref{tab:results_officehome} shows the results on Office-Home.
+We observe that RandConv (previous best on Digits) and SagNet (previous best on PACS) perform worse than ERM on OfficeHome, while AugMix is better by $2.44\%$.
+All three variants of ALT surpass prior results, with ALT$_{AugMix}$ resulting in the best accuracy of $59.45\%$.
+The most difficult target domain for previous methods are \textit{Art (A)} and \textit{Clipart (C)}, possibly because both sets have images with white backgrounds, while real world photos (R) and product images are naturally occurring.
+ALT improves performance in each case when with A or C as target domain.
+An observation similar to PACS can also be made here -- ALT is the best model under the realistic setting of generalizing from widely available real photos (R) to other domains.

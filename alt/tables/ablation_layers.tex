@@ -1,0 +1,36 @@
+\begin{table}[t]
+    \centering
+    % \small
+    \begin{tabular}{@{}lccc@{}}
+        \toprule
+        \textbf{Architecture} & \textbf{Digits Average} & \textbf{PACS Average} \\
+        \midrule
+        FCN (2 layers) & 72.75 & 63.40 \\
+        FCN (3 layers) & 73.74 & 63.92\\
+        FCN (4 layers) & 74.10 & 64.41 \\
+        FCN (5 layers) & 73.87 & 64.20 \\
+        FCN (6 layers) & 74.15 & 63.78\\
+        % ResNetGen-6~\cite{johnson2016perceptual} & \\
+        % UNet-10~\cite{ronneberger2015u} & \\
+        \bottomrule
+    \end{tabular}
+    \caption{Effect of the architecture of the adversity network $g$ on average domain generalization on the PACS and Digits benchmarks.}
+    \label{tab:gvars}
+\end{table}
+
+% \begin{table}[t]
+%     \centering
+%     \begin{tabular}{cc}
+%         \toprule
+%         \textbf{Method}     & \textbf{DG Avg.}\\
+%         \midrule
+%         RandConv            & \\
+%         AugMix              & 59.56\\
+%         ALT$_{RandConv}$    & \\
+%         ALT$_{AugMix}$      & \\
+%         ALT$_{none}$        & \\
+%         \bottomrule
+%     \end{tabular}
+%     \caption{PACS DG Average}
+%     \label{tab:ablation_hd}
+% \end{table}

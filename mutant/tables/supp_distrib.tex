@@ -1,0 +1,37 @@
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{@{}cc@{}}
+        \toprule
+        \textbf{Mutation Category} & \textbf{Number of Samples}\\
+        \toprule
+        Object Removal  & 159,899\\
+        Color Change    & 30,759 \\
+        Negation        & 237,611 \\
+        Adversarial Substitution & 146,814 \\
+        Word Masking & 104,666\\
+        \bottomrule
+    \end{tabular}
+
+    \caption{Distribution of generated mutant samples by category of mutation}
+    \label{tab:mutant_type}
+\end{table}
+
+
+\begin{table}[t]
+    \centering
+    \small
+    \begin{tabular}{| c | c | c |}
+        \hline
+        \textbf{Category} & \textbf{VQA-CP (\%)} & \textbf{Mutant (\%)}\\
+        \hline 
+        Yes/No & 41.86 & 47.88 \\
+        Number & 11.91 & 13.64 \\
+        Other  & 46.23 & 38.48 \\
+        \hline
+    \end{tabular}
+    \caption{Distribution of samples in the dataset by answer type}
+    \label{tab:ans_type}
+\end{table}
+
+

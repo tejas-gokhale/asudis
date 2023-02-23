@@ -1,0 +1,81 @@
+\usepackage[utf8]{inputenc}
+\usepackage{graphicx}
+\usepackage{enumitem}
+\usepackage{xcolor}
+
+% AGAT
+%%%%%%%%%%%%%%%% PACKAGES ADDED BY TGOKHALE %%%%%%%%%%%%%%%%
+% \usepackage[dvipsnames]{xcolor}
+\usepackage{ragged2e}
+\usepackage{booktabs}
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{multirow} 
+\usepackage{multicol}
+\DeclareMathOperator*{\minimize}{minimize}
+\usepackage[switch]{lineno}
+\usepackage{makecell}
+
+%%%%%%%%%%%%%%%% COMMANDS ADDED BY TGOKHALE %%%%%%%%%%%%%%%%
+\renewcommand\theadalign{bc}
+\renewcommand\theadfont{\bfseries}
+\renewcommand\theadgape{\Gape[2pt]}
+\renewcommand\cellgape{\Gape[2pt]}
+\newcolumntype{P}[1]{>{\centering\arraybackslash}p{#1}}
+
+\usepackage{url}            % simple URL typesetting
+\usepackage{booktabs}       % professional-quality tables
+\usepackage{amsfonts}       % blackboard math symbols
+\usepackage{nicefrac}       % compact symbols for 1/2, etc.
+\usepackage{microtype}      % microtypography
+\usepackage{xcolor}         % colors
+
+\usepackage{makecell}
+\usepackage{graphicx}
+
+\renewcommand\theadfont{\bfseries}
+\newcommand{\todo}[1]{\textcolor{red}{#1}}
+
+%%%% PACKAGES ADDED BY tgokhale %%%%
+\usepackage{enumitem}
+\usepackage{wrapfig}
+\usepackage{graphicx}
+\usepackage{amsmath}
+\usepackage{bbm}
+\usepackage{bm}
+\usepackage[normalem]{ulem} 
+\usepackage{multirow}
+\usepackage{makecell}
+\usepackage{epigraph}
+\usepackage{mathtools}
+\usepackage{color, colortbl}
+%%%% color COMMANDS ADDED BY TGOKHALE %%%%
+\definecolor{LightCyan}{rgb}{0.88,1,1}
+\definecolor{LightRed}{rgb}{1.0, 0.91, 0.91}
+\definecolor{LightGray}{rgb}{0.88,0.88,0.88}
+\definecolor{VeryLightGray}{rgb}{0.93,0.93,0.93}
+
+% LOL
+\usepackage{pbox}
+\usepackage[caption=false, font=normalsize, labelfont=sf, textfont=sf]{subfig}
+
+% MUTANT 
+\usepackage{scalerel}
+\usepackage{arydshln}
+\usepackage{caption} 
+
+% ALT
+\usepackage{algorithm,algpseudocode}
+\algnewcommand{\algorithmicforeach}{\textbf{for each}}
+\algdef{SE}[FOR]{ForEach}{EndForEach}[1]
+  {\algorithmicforeach\ #1\ \algorithmicdo}% \ForEach{#1}
+  {\algorithmicend\ \algorithmicforeach}% \EndForEach
+  
+% background 
+\newcommand\hood{\mathcal{S}}
+
+% widesim with text on top
+\newcommand{\widesim}[2][1.5]{
+  \mathrel{\overset{#2}{\scalebox{#1}[1]{$\sim$}}}
+}
+

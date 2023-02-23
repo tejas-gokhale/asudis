@@ -1,0 +1,62 @@
+\begin{table*}[t]
+    
+    \begin{center}
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}p{1.7cm}c  p{5.7cm} c c cccc c c }
+        \toprule
+        \textbf{Relation} & \hphantom &
+        \textbf{Model}  &
+        \textbf{\# Param (M)}  &
+        \textbf{CIDER} &             
+        % \textbf{PPL $\downarrow$} &             
+        \textbf{BLEU-1} &
+        \textbf{BLEU-2} &
+        \textbf{BLEU-3} &
+        \textbf{BLEU-4} &
+        \textbf{METEOR} &
+        \textbf{ROUGE-L} \\
+        \toprule
+        % \multirow{4}{*}{{\normalsize {\textbf{Attribute}}}} 
+        % && S2VT~\cite{venugopalan2015sequence}  & - & - & 35.9 & - & - & - & - & - \\
+        % && Attention-Enc-Dec~\cite{gao2017video}  & - & - & 38.3 & - & - & - & - & -  \\
+        % && Dense Captioner~\cite{zhou2018end}  & - & - & 46.0 & - & - & - & - & -\\
+        % && Video CMS Transformer & - & - & 47.3 & - & - & - & - & -\\
+        % \hline
+        % \multirow{4}{*}{{\normalsize {\textbf{Effect}}}} 
+        % && S2VT~\cite{venugopalan2015sequence} & 28.3 & 23.6 & 24.9 & 18.6 & 16.2 & 14.3 & 15.4 & 22.1  \\
+        % && Attention-Enc-Dec~\cite{gao2017video} & 29.5 & 22.0 & 26.5 & 19.4 & 18.8 & 15.1 & 17.5 & 23.9   \\
+        % && Dense Captioner~\cite{zhou2018end} & 36.9 & 16.0 & 33.7 & 24.8 & 21.0 & 20.2 & 20.0 & 29.9  \\
+        % && Video CMS Transformer & 37.3 & 15.6 & 34.8 & 25.9 & 22.5 & 20.4 & 20.8 & 30.6  \\
+        % \hline
+        % \multirow{4}{*}{{\normalsize {\textbf{Intention}}}} 
+        % && S2VT~\cite{venugopalan2015sequence} & 51.8 & 17.8 & 48.4 & 39.9 & 34.3 & 26.4 & 23.3 & 44.3\\
+        % && Attention-Enc-Dec~\cite{gao2017video} & 52.1 & 16.0 & 51.1 & 42.6 & 35.5 & 28.2 & 24.3 & 48.0\\
+        % && Dense Captioner~\cite{zhou2018end} & 60.3 & 12.0 & 59.3 & 47.0 & 37.3 & 31.5 & 28.0 & 53.1 \\
+        % && Video CMS Transformer & 62.0 & 11.7 & 60.8 & 48.4 & 39.1 & 34.1 & 28.5 & 54.6  \\
+        
+        % Results updating due to new version V2C dataset, baselines are re-implemented and now we have 5-GT so numbers are all different.
+        \multirow{4}{*}{{\normalsize {\textbf{Attribute}}}} 
+        && RNN Encoder + Decoder & 66.0 & - & 21.7 & - & - & - & - & -  \\
+        && Attention + Video2Text  & 52.5  & - & 36.5 & - & - & - & - & - \\
+        && Transformer Encoder + Decoder  & 69.7 & - & 40.7 & - & - & - & - & -\\
+        && Video CMS Transformer & 69.2 & -  & 47.3 & - & - & - & - & -\\
+        \hline
+        \multirow{4}{*}{{\normalsize {\textbf{Effect}}}} 
+        && RNN Encoder + Decoder  & 66.0  & 12.2 & 21.2 & 11.5 & 8.6 & 7.5 & 10.2 & 16.7  \\
+        && Attention + Video2Text & 52.5  & 18.5 & 27.7 & 16.9 & 13.3 & 11.5 & 16.0 & 23.9  \\
+        && Transformer Encoder + Decoder & 69.7  & 37.7 & 35.3 & 26.6 & 23.2 & 21.0 & 21.4 & 31.1  \\
+        && Video CMS Transformer & 69.2 & 40.8 & 36.5 & 28.1 & 24.6 & 22.4 & 22.2 & 32.3  \\
+        \hline
+        \multirow{4}{*}{{\normalsize {\textbf{Intention}}}} 
+        && RNN Encoder + Decoder & 66.0 & 19.3 & 41.7 & 26.4 & 16.6 & 11.7 & 16.5 & 36.4 \\
+        && Attention + Video2Text  & 52.5 & 23.2 & 54.3 & 40.0 & 27.4 & 24.7 & 19.4 & 45.6 \\
+        &&  Transformer Encoder + Decode & 69.7 & 57.4 & 58.3 & 45.7 & 36.3 & 31.1 & 27.4 & 53.2 \\
+        && Video CMS Transformer & 69.2 & 62.0 & 60.8 & 48.4 & 39.1 & 34.1 & 28.5 & 54.6  \\
+        \hline
+    \end{tabular}
+    }
+    \end{center}
+    \caption{ Evaluation of V2C completion task using CIDER, BLEU, Rouge, and Meteor metrics. We use only BLEU-1 to evaluate the attribute generation  since the average length of the ground truth is just less than 2.}
+
+    \label{tab:automaticevaluation}
+\end{table*}

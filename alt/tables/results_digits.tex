@@ -1,0 +1,24 @@
+\begin{table}[t]
+    \centering
+    % \small
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l lllll l @{}}
+        \toprule
+        \textbf{Method} & \textbf{MNIST-10K} & \textbf{MNIST-M} & \textbf{SVHN} & \textbf{USPS} & \textbf{SYNTH} & \textbf{Target Avg.} \\ % & \textbf{Digits Avg.} \\
+        \midrule
+        ERM                                 & 98.40 {\footnotesize$\pm$ 0.84} & 58.87 {\footnotesize$\pm$ 3.73 } & 33.41 {\footnotesize$\pm$ 5.28 } & 79.27 {\footnotesize$\pm$ 2.70 } & 42.43 {\footnotesize$\pm$ 5.46 } & 53.50 {\footnotesize$\pm$ 4.23 } \\
+        % & 62.48 {\footnotesize$\pm$ }\\
+        ADA~\citep{volpi2018generalizing}    &  N/A  & 60.41 & 35.51 & 77.26 & 45.32 & 54.62 \\ % & \\
+        M-ADA~\citep{qiao2020learning}       & 99.30 & 67.94 & 42.55 & 78.53 & 48.95 & 59.49 \\ % & \\
+        AugMix~\citep{hendrycks2019augmix}   & 98.53 {\footnotesize$\pm$ 0.18} & 53.36 {\footnotesize$\pm$ 1.59} & 25.96 {\footnotesize$\pm$ 0.80} & 96.12 {\footnotesize$\pm$ 0.72} & 42.90 {\footnotesize$\pm$ 0.60} & 54.59 {\footnotesize$\pm$ 0.50}\\
+        RandConv~\citep{xu2020robust}        & 98.85 {\footnotesize$\pm$ 0.04 } & 87.76 {\footnotesize$\pm$ 0.83} &	57.62 {\footnotesize$\pm$ 2.09} & 83.36 {\footnotesize$\pm$	0.96} & 62.88 {\footnotesize$\pm$ 0.78} & 72.88 {\footnotesize$\pm$ 0.58} \\
+        \midrule 
+        ALT$_{g-only}$                      & 98.46 {\footnotesize$\pm$0.27} & 74.28 {\footnotesize$\pm$1.36} & 52.25 {\footnotesize$\pm$1.54} & 94.99 {\footnotesize$\pm$0.68} & 68.44 {\footnotesize$\pm$0.98} & 72.49{\footnotesize$\pm$ 0.87} \\
+        ALT$_{RandConv}$                    & 98.46 {\footnotesize$\pm$ 0.25} & 76.90 {\footnotesize$\pm$ 1.42} & 53.78 {\footnotesize$\pm$ 1.97} & 95.40 {\footnotesize$\pm$ 0.72} & 69.40 {\footnotesize$\pm$ 1.07} & \textbf{73.87} {\footnotesize$\pm$ 1.03}\\
+        ALT$_{AugMix}$                      & 98.55 {\footnotesize$\pm$ 0.11} & 75.98 {\footnotesize$\pm$ 0.59} & 55.01 {\footnotesize$\pm$ 1.34} & 96.17 {\footnotesize$\pm$ 0.45} & 69.93 {\footnotesize$\pm$ 2.17} & \textbf{74.38} {\footnotesize$\pm$ 0.86}\\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Single-source domain generalization accuracy (\%) on digit classification, with MNIST-10K as source and MNIST-M, SVHN, USPS, and SYNTH as target domains. Performance reported over five repetitions. Note:ADA and M-ADA do not report standard deviation.}
+    \label{tab:results_digits}
+\end{table}

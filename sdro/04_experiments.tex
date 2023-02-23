@@ -1,0 +1,56 @@
+%%%%%%%%% EXPERIMENTS
+\section{Experiments}
+\paragraph{Datasets.}
+For all datasets, given images/videos and natural language text as input, the system is expected to predict a binary class label.
+NLVR$^2$~\citep{suhr2019corpus} contains ${\sim}86K, 7K, 7K$ samples for training, development, and testing respectively.
+Each sample in NLVR$^2$ consists of a pair of images (from search engines) and a sentence (crowd-sourced).
+VIOLIN~\citep{liu2020violin} contains video clips from popular TV shows and movies along with subtitles and crowd-sourced statements.
+VIOLIN contains $76K$, $9.5K$, $9.5K$ samples for training, validation and testing.
+VQA Yes/No consists of image-question-answer triplets from VQA-v2 dataset~\citep{goyal2017making}.
+While VQA-v2 consists of multiple question and answer types, we focus on the subset of questions with binary \textit{yes/no} answers (${\sim}38\%$ of VQA-v2).
+    
+\paragraph{Evaluation Metrics.}
+We use two evaluation metrics:
+(1) \textbf{Clean Accuracy}: accuracy on the i.i.d.\ benchmark test set, and
+(2) \textbf{SISP Accuracy}: average performance on SISP transformations of the test set.
+Since SISP transformations are automated and can be noisy (Sec~\ref{sec:sisp_fidelity_bias}), evaluation on the SISP test set can be considered a proxy for robustness.
+
+\footnotetext[3]{
+Notation: \textbf{bold}: higher than SOTA;
+shaded: higher than respective backbone;
+\uline{underlined}: best SI/SP accuracies.
+}
+
+\subsection{Results}
+We compare SDRO with backbone models that use standard training data \textit{(BASE)} and data-augmentation \textit{($+$data-aug)}.
+We train SDRO and backbones with the same hyperparameters.
+We apply test-time ensembling to the best SDRO model.
+\paragraph{NLVR$^2$:}
+\input{sdro/tables/results_NLVR2}
+We use Transformer-based models LXMERT~\citep{tan2019lxmert}, UNITER~\citep{chen2020uniter}, and VILLA~\citep{gan2020large} as backbones for SDRO. 
+VILLA (the current state-of-the-art for NLVR$^2$) uses standard adversarial training.
+The percentage of SISP-transformed samples is fixed at $T{=}20\%$.
+Table~\ref{tab:results_nlvr2} shows results on the NLVR$^2$ test set, with consistent model-agnostic improvements in clean accuracy over each baseline model and improved robustness on average.
+Both variants of SDRO improve over VILLA$_{BASE}$ by $0.84\%$ and $1.02\%$, respectively.
+Test-time ensembling using Equation~\ref{sdro:eq:ensembling} leads to further gains, resulting in a new state-of-the-art accuracy of $82.22\%$, an improvement of $3.83\%$ over VILLA$_{BASE}$.
+GW-SDRO results in the highest SI accuracy when used with each backbone model.
+
+
+
+\paragraph{VIOLIN:}
+\input{sdro/tables/results_violin}
+We consider VIOLIN$_{BASE}$~\citep{liu2020violin} and HERO~\citep{li2020hero}, the current state of the art, as baselines.
+VIOLIN$_{BASE}$ separately computes visual features using Faster-RCNN~\citep{ren2015faster} and textual features using BERT~\citep{devlin2019bert}, and fuses them to be used as input to a classifier model.
+On the other-hand, HERO is a large-scale transformer-based pre-trained model which uses various V\&L pre-training tasks to compute cross-modal features.
+We set $T{=}40\%$.
+The results can be seen in Table~\ref{tab:results_violin}.
+SW-SDRO model with the HERO backbone improves the state-of-the-art to $68.83\%$, and test-time ensembling further improves it to $69.90\%$. 
+Interestingly, similar improvements in clean accuracy are not observed for VIOLIN$_{BASE}$, potentially because it does not use cross-modal pre-trained features.
+
+\paragraph{VQA Yes/No:}
+\input{sdro/tables/results_vqayesno}
+We use UNITER and VILLA as the backbone models, with $T{=}20\%$.
+The motivation behind VQA experiments is to show that SISP transforms and SDRO can be extended to other V\&L tasks.
+Table~\ref{tab:results_vqayesno} shows that GW-SDRO is the best performing model in terms of clean accuracy, and is further improved by test-time ensembling.
+
+

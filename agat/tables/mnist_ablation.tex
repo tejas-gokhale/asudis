@@ -1,0 +1,53 @@
+\begin{table}
+    \centering 
+    % \small
+    % \resizebox{0.7\linewidth}{!}{               
+    \begin{tabular}{@{}cccccc@{}}
+        \toprule
+        $\mathbf{N_{aug}}$ & $\mathbf{T_{aug}}$ & \textbf{R} & \textbf{T} & \textbf{S} & \textbf{RTS} \\
+        \toprule
+        1 & 10 & 84.12 & 43.33 & 96.65 & 34.12 \\
+         & 30 & 83.80 & 54.17 & 95.89 & 40.46 \\
+         & 50 & 84.49 & 59.97 & 96.29 & 47.62 \\ 
+         & 70 & 84.35 & 62.76 & 96.24 & 51.13 \\
+        \midrule
+        2 & 10 & 84.97 & 47.21 & 96.41 & 36.84 \\
+         & 30 & 84.93 & 52.95 & 96.11 & 41.43 \\
+         & 50 & 86.35 & 61.07 & 95.76 & 47.59 \\
+         & 70 & 84.59 & 62.75 & 95.79 & 50.28\\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{The effect of augmentation interval ($N_{aug}$) at different percentages of augmented samples 
+    ($T_{aug}$). 
+    }
+    \label{}
+\end{table}
+
+\begin{table}
+    \centering 
+    % \small 
+    % \resizebox{0.7\linewidth}{!}{               
+    \begin{tabular}{@{}cccccc@{}}
+        \toprule
+        \textbf{Loss} & $\mathbf{T_{aug}}$ & \textbf{R} & \textbf{T} & \textbf{S} & \textbf{RTS} \\
+        \toprule
+        GT 
+         & 10 & 85.41 & 29.48 & 96.74 & 23.57\\
+         & 30 & 84.82 & 48.46 & 96.75 & 37.80\\
+         & 50 & 84.17 & 52.44 & 95.86 & 41.82 \\
+         & 70 & 84.07 & 55.14 & 95.70 & 44.20 \\
+        \midrule
+        GT~+~CR
+         & 10 & 84.97 & 47.21 & 96.41 & 36.84 \\
+         & 30 & 84.93 & 52.95 & 96.11 & 41.43 \\
+         & 50 & 86.35 & 61.07 & 95.76 & 47.59 \\ 
+         & 70 & 84.59 & 62.75 & 95.79 & 50.28 \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption{
+        The effect of classification loss function at different percentages of augmented samples. GT denotes the first term and CR is consistency regularization in Eq~\eqref{agat:eq:loss_distill}.
+    }
+    \label{tab:mnist_ablation}
+\end{table}

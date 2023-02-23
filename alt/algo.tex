@@ -1,0 +1,39 @@
+\begin{algorithm}[t]
+    \caption{Adaptive Diversity via ALT}
+    \begin{algorithmic}[0]
+        \State \textbf{Input:} Source dataset $\mathcal{D}=\{(\xx_i,\yy_i)\}_{i=1}^N$ 
+        \State \textbf{Output:} Learned weights $\theta^*$  
+    \end{algorithmic}
+    \begin{algorithmic}[1]
+        \State \textbf{Initialize:} $\theta\gets\theta_0$ \algorithmiccomment{weights of $f()$}
+        \ForEach{$t \in \{1\dots T\}$}%
+            \State $\xx_t, \yy_t \sim\mathcal{D}$ \algorithmiccomment{\textit{sample input batch}}
+            % \Statex ~~\quad$\triangleright$~\textit{train on source only}
+            \If{$t < T_{pre}$} 
+                \State $\theta\gets\theta - \eta\nabla \mathcal{L}_{cls}(f(\xx_t;\theta), \yy_t))$ 
+            % \Statex ~~\quad$\triangleright$~\textit{ALT}
+            \Else
+                \State $\rho\gets\rho_0,~\phi\gets\phi_0$\algorithmiccomment{weights of $r()$, $g()$}
+                \ForEach{$i\in{1\dots m_{adv}}$}
+                    % \State $\phi\sim KN()$ \algorithmiccomment{initialize $\phi$}
+                    % \State $\hat{\yy}\gets f(\xx; \theta)$
+                    % \State $\xx_g \gets g(\xx;\phi)$
+                    \State $\hat{\yy_g} \gets f(g(\xx;\phi);\theta)$
+                    % \State $L_{adv} \gets \mathcal{L}_{cls}(\hat{\yy_g}, \yy) - \mathcal{L}_{TV}(\xx_g)$
+                    % \State $\phi\gets\phi+\nabla\mathcal{L}_{adv}$
+                    \State $\phi\gets\phi+\nabla(\mathcal{L}_{cls}(\hat{\yy_g}, \yy) - \mathcal{L}_{TV}(\xx_g))$
+                \EndForEach
+                % \Statex ~~\quad~~\quad $\triangleright$ \textit{Consistency}
+                % \State $p_c,~p_r,~p_g \gets f(\xx; \theta),~f(r(\xx); \theta),~f(g(\xx); \theta)$
+                % \State $p_{mix}\gets (p_c + w_r p_r + (2-w_r)p_g)/3$
+                % \State $\mathcal{L}_{KL}\gets\sum_{j\in\{c,r,g\}}D_{KL}(p_{mix}||p_j)$ 
+                % \State $\theta\gets\theta-\eta_{adv}\nabla((1-\lambda_{KL})\mathcal{L}_{cls} + \lambda_{KL}\mathcal{L}_{KL})$
+                \State $\theta\gets\theta-\eta_{adv}\nabla\mathcal{L}_{ALT}$ \algorithmiccomment{see Eq.\ref{alt:eq:L_KL},\ref{alt:eq:L_ALT}}
+            \EndIf 
+        \EndForEach
+        \State\Return $\theta$
+\end{algorithmic}
+\label{algo}
+\end{algorithm}
+
+

@@ -1,0 +1,49 @@
+    \begin{table}[t]
+        
+        \centering
+        \resizebox{\linewidth}{!}{
+        \begin{tabular}{@{}p{0.45mm}p{3.77cm} p{0.65cm}p{0.65cm} p{0.65cm}p{0.65cm} p{0.65cm}p{0.65cm}}
+            \toprule 
+            % \multirow{2}{*}{\textbf{Type}} 
+            & \multirow{2}{*}{\textbf{Model}} 
+            & \multicolumn{2}{c}{\textbf{top-1}}   
+            & \multicolumn{2}{c}{\textbf{top-3}}   
+            & \multicolumn{2}{c}{\textbf{top-5}} 
+            %   & \multirow{2}{*}{\pbox{18mm}{Ranking Loss}}
+            \\
+            \cmidrule{3-4} \cmidrule{5-6} \cmidrule{7-8}
+            & & p & r & p & r & p & r\\
+            
+            \toprule 
+            \multirow{5}{*}{\rotatebox{90}{\textbf{Intention}}} 
+            & MSR-VTT QA        & 9.68 & 2.13 & 7.15 & 4.68 & 6.07 &  6.60\\
+            & V2C-T             & 10.34 & 2.31 & 7.69 & 5.03 & 6.37 & 6.87\\
+            & V2C-T + Captions  & 10.72 & 2.54 & \textbf{8.08} & 5.47 & 6.39 & 7.20\\
+            & Pretrained V2C-T  & 10.77 & \textbf{2.69} & 8.01 & 5.58 & \textbf{6.71} & 7.88\\
+            & Pretrained V2C-T~+~Cap. & \textbf{11.04} & 2.68 & 7.96 & \textbf{5.70} & 6.63 &\textbf{7.79}\\
+            
+            \midrule 
+            
+            \multirow{5}{*}{\rotatebox{90}{\textbf{Effect}}} & MSR-VTT QA & 19.89 & 5.02 & 8.04 & 5.91 & 5.30 & 6.49\\
+            & V2C-T & 20.95 & 5.43 & 8.65 & 6.57 & 5.65 & 7.06\\
+            & V2C-T + Captions  & 20.95 & 5.32 & 8.50 & 6.48 & 5.76 & 7.26\\
+            & Pretrained V2C-T & 20.95 & 5.32 & 8.63 & 6.55 & 5.82 & 7.49\\
+            & Pretrained V2C-T~+~Cap. & \textbf{21.12} & \textbf{5.60} & \textbf{8.70} & \textbf{6.89} & \textbf{5.83} & \textbf{7.68}\\
+            \midrule
+            
+            \multirow{5}{*}{\rotatebox{90}{\textbf{Attribute}}} & MSR-VTT QA & 46.10 & 37.22 & 16.02 & 49.45 & 7.49 & 41.03\\
+            & V2C-T & 59.52 & 48.30 & 22.39 & 51.40 & 13.97 & 52.57\\
+            & V2C-T + Captions & 59.74 & 48.22 & 23.12 & 52.44 & 14.64 & 54.35\\
+            & Pretrained V2C-T & \textbf{60.72} & \textbf{49.00} & \textbf{23.18} & \textbf{52.73} & \textbf{14.98} & \textbf{55.40}\\
+            & Pretrained V2C-T +Cap. & 59.57 & 48.24 & 23.10 & 52.54 & 14.94 & 54.91\\
+            \midrule 
+            & Text-Only Baseline & 12.36 & 11.70 & 13.84 & 12.35 & 14.77 & 14.10 \\
+            
+            \bottomrule
+        \end{tabular}
+        }
+        \caption{Precision (p) and Recall (r) for V2C-QA for each type of question. 
+        % The best-performing model for each description category and task is given in bold, while the overall best is underlined
+        }
+        \label{tab:v2cqa_results}
+    \end{table} 

@@ -1,0 +1,88 @@
+\section{Proposed Approach} 
+% \paragraph{Preliminaries.}
+Under the single-source domain generalization setting, consider the training dataset $\mathcal{D}$ containing $N$ image-label pairs $\mathcal{D} = \{(\xx_i, \yy_i)\}_{i=1}^{N}$, and a classifier $f$ parameterized by neural network weights $\theta$. 
+The standard expected risk minimization (ERM) approach seeks to learn $\theta$ by minimizing the the in-domain risk measured by a suitable loss function such as the binary cross-entropy loss.
+\begin{equation}
+    \mathcal{R}_{ERM} = \underset{\xx\in\mathcal{D}}{\E} \mathcal{L}_{BCE}(f(\xx;\theta), \yy).
+    \label{alt:eq:erm}
+\end{equation}
+For SSDG, we are interested in a classifier that has the least risk on any \textit{unseen} target domain $\mathcal{D}^\prime$ that is not observed during training. Note that in SSDG, there is only domain shift and no label shift, i.e. we assume the same classes exist in the training and testing domains. 
+Our approach builds on diversity based and adversarial augmentation approaches which we outline next. 
+
+\paragraph{Generalization via Diversity.} A successful strategy to improve generalization error on unseen domains is to utilize a diverse set of pre-defined transformations, $\mathcal{F}_{div}$, to synthesize data augmentations that emphasize the invariance properties that are important for $f(\theta)$ to learn. Methods that fall under this category modify Equation \ref{alt:eq:erm} as follows: 
+\begin{equation}
+    \label{alt:eq:div_erm}
+    \mathcal{R}_{div} = \underset{\xx\in\mathcal{D}}{\E} \mathcal{L}_{BCE}(f(\xx; \theta), \yy) + \lambda_{KL} D_{KL},
+\end{equation}
+where $D_{KL}$ is a consistency term, typically a divergence, such as KL-Divergence, between the softmax probabilities of the classifier obtained with the clean and transformed data, respectively, \textit{e.g.}, $D_{KL} = KL(f(\xx) ||f(\mathcal{F}_{div}(\xx)))$. 
+When $\mathcal{F}_{div}$ is chosen as a set of pre-defined transformations like shear, rotate, color jitter etc., this approach is referred to as AugMix \citep{hendrycks2019augmix}, and when it is a set of randomly initialized convolutional layers this method becomes RandConv \citep{xu2020robust} -- both of which are among the most effective strategies to enforce diversity-based consistencies for generalization.
+Although these methods have the advantage of being simple pre-defined transformations that are dataset agnostic, they suffer from drawbacks under the SSDG setting.
+When executed on their own, they may not capture sufficient diversity in terms of \textbf{large} semantic shifts, such as when expecting generalization on sketches from a model trained on photos.
+% However, these methods suffer from a few drawbacks -- they are pre-defined and capture a large class of potential image transformations (particularly rand-conv), but when executed on their own, they may not capture sufficient diversity in terms of \emph{large} semantic shifts. 
+
+\paragraph{Generalization via adversarial hardness.}
+An alternative approach to domain generalization is via adversarial augmentation  which exposes a classifier to `hard' samples during training -- defined broadly as examples that are carefully designed to cause the model to fail. Such samples are augmented to the training set, with the expectation that exposure to such adversarial examples can improve the model's generalization performance on unseen domains \citep{volpi2018generalizing,qiao2020learning}. This is commonly enforced by learning an additive noise vector which when added, maximizes classifier cost. Unfortunately in the case of domain generalization, these methods have failed to match the performance of diversity-only methods optimizing for the cost outlined in Equation~\ref{alt:eq:div_erm}. This is in part because they lack sufficient diversity, and by design they can only guarantee robustness to small perturbations from the training domain, as opposed to large semantic shifts, which are crucial for domain generalization.
+
+% \begin{equation}
+%     \label{alt:eq:div_erm}
+%     \mathcal{R}_{adv} = \underset{||\delta||_p < \epsilon}{\textrm{max}}~\mathcal{L}_{BCE}(f(\xx+\delta;\phi); \theta), \yy)
+% \end{equation}
+
+\input{alt/algo}
+\paragraph{Adversarially Learned Transformations (ALT).}
+While diversity-only methods have shown promise, they are limited in their ability to generalize to domains with large semantic shifts; on the  other hand, techniques based purely on adversarial hardness are theoretically well-motivated but do not match the performance of diversity-based methods. Instead, in this chapter, we propose a new approach that takes the best of these two approaches using an adversary network that is trained to create \emph{plausible} image transformations that fool the classifier. These manipulated images are then used during training as examples on which the image must learn invariance. Since these perturbations are parameterized as learnable weights of a neural network, the network is free to choose large, complex transformations without being restricted to additive noise as done in previous work~\citep{volpi2018generalizing}. Further, this network is randomly initialized for each batch, making the types of adversarial transformations discovered unique and diverse over the course of training.  
+%
+% With this goal in mind, we propose learning transformations of source images using an adversarially trained image-to-image transformation network 
+
+Formally, the adversary network transforms the input image as $g\colon\R^{C\times H\times W}\rightarrow\R^{C\times H\times W}$, where $C$, $H$, $W$ are the number of channels, height, and width of input images.
+$g$ is parameterized by a set of weights denoted by $\phi$. This network, dubbed ALT, forms the backbone of our method.  To train ALT, we setup an adversarial optimization problem with the goal of producing transformations, which when applied to the source domain, can fool the classifier $f$.
+While existing efforts dealing with robustness to small corruptions use pixel-level and $\ell_p$ norm-bounded perturbations to fool the model, we find that this is not sufficient for domain generalization as such methods do not allow searching for adversarial samples with semantic changes.
+Instead, we directly perform adversarial training in the space of $\phi$, i.e., the neural network weights of ALT. Given input images $\xx$, parameters $\phi$ are randomly initialized, and the corresponding adversarial samples $\xx_g$ are found as:
+\begin{equation}
+    \xx_g = \underset{\phi}{\textrm{max}}~\mathcal{L}_{BCE}(f(g(\xx;\phi); \theta), \yy) - \mathcal{L}_{TV}(g(\xx;\phi)). 
+    \label{alt:eq:adv_max}
+\end{equation}
+The first term seeks to update $\phi$ so as to maximizes the classifier loss, while $\mathcal{L}_{TV}$ (total variation)~\citep{rudin1992nonlinear} acts as a smoothness regularization for the generated image $\xx_g = g(\xx;\phi)$. The maximization in Equation \ref{alt:eq:adv_max} is solved by performing $m_{adv}$ steps of gradient descent with learning rate $\eta_{adv}$. We note a few important aspects of ALT -- unlike existing methods that explicitly place an $\ell_p-$norm constraint on the adversarial perturbations, we control the strength of the adversarial examples by limiting the number of optimization steps taken by $g$ to maximize classification error. Next, since we randomly initialize $g$ for each batch, the network is reset to a random function. In fact, when the number of adversarial steps is set to 0, $g$ behaves similar to RandConv \citep{xu2020robust} since its only a set of convolutional layers, with additional non-linearity. Finally, in addition to limiting the number of adversarial steps, we place a simple total variation loss on the generated image to force smoothness in the output. This naturally suppresses high frequency noise-like artifacts and encourages realistic image transformations and prevents the network from learning trivial transformations  -- for e.g., only noise or removing semantic content entirely. 
+
+\paragraph{Improving Diversity.}
+The samples $\xx_g$ obtained by solving Equation~\ref{alt:eq:adv_max} represent hard adversarial images that can be leveraged by the model to generalize to domain shift. But it also lends itself to exploit other forms of na\"ive diversity achieved by methods like RandConv and AugMix.
+% On the other hand, augmentations such as RandConv and Augmix produce images that represent predefined image transformations such as random scaling, cropping, affine transformations, color jitter and so on.
+We represent these ``diversity modules'' as $r$, which produce outputs $\xx_r{=}r(\xx)$. Our method utilizes these samples in the training process by enforcing a consistency between the predictions of the classifier on the source image and its transformations from $r$ and $g$. By including the diversity module into the optimization process, the invariances inferred by the classifier lead to stronger and more diverse adversarial examples in future epochs. 
+Eventually, a synergistic partnership emerges between the diversity module and the adversary network to produce a wide range of image transformations that are significantly different from the source domain.  
+
+Let $p_c$, $p_r$, and $p_g$ denote the softmax prediction probabilities of classifier $f$ on $\xx$, $\xx_r$, and $\xx_g$, respectively. Then the consistency between these predictions can be computed using Kullback-Leibler divergence~\citep{kullback1951information} as:
+\begin{equation}
+    \mathcal{L}_{KL} = D_{KL}(p_{mix}||p_c) + w_r D_{KL}(p_{mix}||p_r) + (2-w_r) D_{KL}(p_{mix}||p_g), 
+    \label{alt:eq:L_KL}
+\end{equation}
+% \begin{equation}
+%     \mathcal{L}_{KL} = D_{KL}(p_{mix}||p_c) + w_r D_{KL}(p_{mix}||p_r) 
+%     % \nonumber\\
+%     + (2-w_r) D_{KL}(p_{mix}||p_g), 
+%     \label{alt:eq:L_KL}
+% \end{equation}
+where $p_{mix}$ denotes the mixed prediction:
+\begin{equation}
+    p_{mix} = \frac{p_c + w_r p_r + (2-w_r)p_g}{3}.
+    \label{alt:eq:p_mix}
+\end{equation}
+The weight $w_r\in[0,2]$ controls the relative contribution of diversity and adversity to the consistency loss; $w_r>1$ implies that consistency with the diversity module has more weight and $w_r<1$ implies that consistency with the adversary network has more weight.
+In all our benchmark experiments, we use $w_r=1$, i.e., both diversity and adversary are given equal importance.
+
+Our final loss function for training the classifier is given as the convex combination of classifier loss $\mathcal{L}_{cls}$ with the consistency $\mathcal{L}_{KL}$:
+\begin{align}
+    \mathcal{L}_{cls} &= \mathcal{L}_{BCE}(f(g(\xx); \theta), \yy), \label{alt:eq:L_cls}\\
+    \mathcal{L}_{ALT} &= (1-\lambda_{KL})\mathcal{L}_{cls} + \lambda_{KL}\mathcal{L}_{KL}.
+    \label{alt:eq:L_ALT}
+\end{align}
+
+
+\paragraph{Implementation.}
+In practice, ALT is implemented using the pseudocode shown in Algorithm~\ref{algo}.
+In our experiments, we use RandConv or AugMix as the diversity module $r$ and a fully-convolutional image-to-image network as the adversary network $g$.
+$g$ has 5 convolutional layers with kernel size $3$ and LeakyReLU activation.
+We train the classifier for a total of $T$ batch iterations of which $T_{pre}$ iterations are used for pre-training the classifier using standard ERM on only the source domain (with only $\mathcal{L}_{cls}$).
+For iterations $t>T_{pre}$, for each batch, we randomly initialize the weights of both $r$ and $g$ with the ``Kaiming Normal'' strategy~\citep{he2016deep} as our starting point for producing diverse perturbations, and update $g$ using the adversarial cost in Equation~\eqref{alt:eq:adv_max}.
+After $g$ is adversarially updated for the given batch, we use the combination of classifier loss and consistency in Equation~\eqref{alt:eq:L_ALT} to update model parameters $\theta$.
+
+

@@ -1,0 +1,29 @@
+\begin{table}
+    \centering
+    \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}p{1.75cm}>{\RaggedRight}p{3.45cm} p{0.7cm}p{0.7cm}p{0.7cm}p{0.7cm}}
+        \toprule 
+        \multirow{2}{*}{Model} & \multirow{2}{*}{Data} & \multicolumn{4}{c}{VQA-CP v2 test $\uparrow$ (\%)}\\
+        \cmidrule{3-6}
+        & & All & Yes/No & Num & Other \\
+        \toprule
+        UpDn    & VQA-CP            & 39.74 & 42.27 & 11.93 & 46.05 \\
+        UpDn    & VQA-CP + Mutant   & 50.16 & 61.45 & 35.87 & 50.14 \\
+        \hdashline
+        \multicolumn{2}{c}{\textit{Increase in Accuracy}} & \textit{10.42} & \textit{19.18} & \textit{23.94} & \textit{4.09}\\
+        \hdashline
+        LXMERT  & VQA-CP            & 46.23 & 42.84 & 18.91 & 55.51 \\
+        LXMERT  & VQA-CP + Mutant   & 59.69 & 73.19 & 32.85 & 59.29 \\
+        \hdashline
+        \multicolumn{2}{c}{\textit{Increase in Accuracy}} & \textit{13.46} & \textit{30.35} & \textit{13.94} & \textit{3.78}\\
+        \midrule 
+        LXM~+~Ours & VQA-CP + Img. Mut. & 64.85 & 85.68 & 66.44 & 53.80\\
+        LXM~+~Ours & VQA-CP + Que. Mut. & 67.92 & 91.64 & 65.73 & 56.09\\
+        LXM~+~Ours & VQA-CP + Both Mut. & \textbf{69.52} & \textbf{93.15} & \textbf{67.17} & \textbf{57.78} \\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{Top section: Comparison of UpDn and LXMERT when trained on VQA-CP and augmented with mutant samples, and the increase in accuracy due to mutant samples.
+    Bottom section: Comparison of LXMERT when using image or text mutations, or both.}
+    \label{tab:effect_data}
+\end{table}

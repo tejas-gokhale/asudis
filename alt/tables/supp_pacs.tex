@@ -1,0 +1,92 @@
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on PACS for the P$\rightarrow$ACS setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Photo$^\star$}    & \textbf{Art-Painting} & \textbf{Cartoon}  & \textbf{Sketch}       & \textbf{Target Avg.}  & \textbf{PACS Avg.} \\
+        \midrule
+        % ERM             & {99.042} \tiny{$\pm$ 0.611} & 57.363 \tiny{$\pm$ 1.961} & 20.171 \tiny{$\pm$ 2.478} & 23.552 \tiny{$\pm$ 3.082} & 33.695 \tiny{$\pm$ 2.204} & 50.032 \tiny{$\pm$ 1.756} \\
+        RandConv           & 96.407	\tiny{$\pm$0.757} &	61.309	\tiny{$\pm$2.316} &	37.577	\tiny{$\pm$2.257} &	50.463	\tiny{$\pm$9.018} &	49.783	\tiny{$\pm$4.255} &	61.439	\tiny{$\pm$3.217}\\
+        AugMix             & 99.532	\tiny{$\pm$0.438} &	68.633	\tiny{$\pm$0.950} &	33.788	\tiny{$\pm$1.205} &	36.304	\tiny{$\pm$2.801} &	46.242	\tiny{$\pm$1.122} &	59.564	\tiny{$\pm$0.930}\\
+        RandConv + AugMix  & 98.363	\tiny{$\pm$0.438} &	65.527	\tiny{$\pm$3.060} &	39.300 \tiny{$\pm$6.237} & 40.901	\tiny{$\pm$5.073} & 48.576 \tiny{$\pm$4.031} & 61.023	\tiny{$\pm$3.001} \\
+        \midrule
+        ALT$_{g-only}$ & 99.064	\tiny{$\pm$ 0.286} & 68.770	\tiny{$\pm$ 0.932} & 43.387	\tiny{$\pm$ 1.142} & 50.832	\tiny{$\pm$ 2.937} & 54.330	\tiny{$\pm$ 1.078} & 65.513	\tiny{$\pm$ 0.757} \\
+        ALT$_{RandConv}$ & 98.947 \tiny{$\pm$0.234} & 68.740	\tiny{$\pm$0.702} &	40.828	\tiny{$\pm$2.537} &	56.024	\tiny{$\pm$2.009} &	55.197	\tiny{$\pm$0.498} & 66.135	\tiny{$\pm$0.330}\\
+        ALT$_{AugMix}$ & 99.298	\tiny{$\pm$0.438} &	68.506	\tiny{$\pm$0.836} &	43.507	\tiny{$\pm$2.615} &	53.271	\tiny{$\pm$4.149} &	55.094	\tiny{$\pm$1.876} &	66.145 \tiny{$\pm$1.387}\\
+        \bottomrule
+    \end{tabular}
+    % }
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_pacs_P}
+\end{table*}
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on PACS for the A$\rightarrow$PCS setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Photo}      & \textbf{Art Painting$^\star$} & \textbf{Cartoon}  & \textbf{Sketch}       & \textbf{Target Avg.}  & \textbf{PACS Avg.} \\
+        \midrule
+        % ERM             & {94.802} \tiny{$\pm$ 0.299}  & {93.981} \tiny{$\pm$ 0.658}  & 52.321 \tiny{$\pm$ 2.854}  & 40.651 \tiny{$\pm$ 1.848}  & 62.592 \tiny{$\pm$ 1.427} & 70.439 \tiny{$\pm$ 1.002} \\
+        RandConv         & 87.281	\tiny{$\pm$0.796} &	85.437	\tiny{$\pm$0.532} &	61.143	\tiny{$\pm$2.752} &	60.519	\tiny{$\pm$4.050} &	69.648	\tiny{$\pm$2.152} &	73.595	\tiny{$\pm$1.582} \\
+        AugMix          & 95.317 \tiny{$\pm$0.422} & 93.077	\tiny{$\pm$1.276} &	64.061	\tiny{$\pm$0.361} &	55.027	\tiny{$\pm$2.195} &	71.469	\tiny{$\pm$0.637} &	76.871	\tiny{$\pm$0.581}\\
+        RandConv + AugMix   & 90.743 \tiny{$\pm$0.781} & 90.481	\tiny{$\pm$0.638} &	64.206	\tiny{$\pm$2.238} &	62.515	\tiny{$\pm$2.854} &	72.488	\tiny{$\pm$1.731} & 76.986	\tiny{$\pm$1.177} \\
+        \midrule
+        ALT$_{g-only}$ & 94.934 \tiny{$\pm$0.269} & 91.058 \tiny{$\pm$0.720} & 63.524 \tiny{$\pm$1.821} & 63.813 \tiny{$\pm$2.249} & 74.090 \tiny{$\pm$1.086} & 78.332	\tiny{$\pm$0.845}\\
+        ALT$_{RandConv}$ & 93.593	\tiny{$\pm$0.328} &	92.596	\tiny{$\pm$1.036} &	64.044	\tiny{$\pm$0.635} &	65.991	\tiny{$\pm$1.130} & 74.543	\tiny{$\pm$0.537} & 79.056	\tiny{$\pm$0.609}\\
+        ALT$_{AugMix}$ & 93.174	\tiny{$\pm$0.437} &	91.442	\tiny{$\pm$0.638} &	65.683	\tiny{$\pm$1.656} &	68.226	\tiny{$\pm$2.453} &	75.694	\tiny{$\pm$1.214} &	79.631	\tiny{$\pm$0.856}\\
+        \bottomrule
+    \end{tabular}
+    % }
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_pacs_A}
+\end{table*}
+
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on PACS for the C$\rightarrow$PAS setting. $^\star$Source Domain.
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Photo}    & \textbf{Art-Painting} & \textbf{Cartoon$^\star$}  & \textbf{Sketch}       & \textbf{Target Avg.}  & \textbf{PACS Avg.} \\
+        \midrule
+        % ERM             & {82.563} \tiny{$\pm$ 1.298} & 60.742 \tiny{$\pm$ 1.332} & 93.872 \tiny{$\pm$ 0.577} & 63.013 \tiny{$\pm$ 2.087} & 68.773 \tiny{$\pm$ 0.791} & 75.048 \tiny{$\pm$ 0.675} \\
+        RandConv           & 73.677	\tiny{$\pm$1.814} &	57.051	\tiny{$\pm$1.764} &	91.66	\tiny{$\pm$0.876} &	72.855	\tiny{$\pm$2.314} &	67.861	\tiny{$\pm$1.550} &	73.810	\tiny{$\pm$1.317} \\
+        AugMix              & 84.599 \tiny{$\pm$0.997} & 68.281	\tiny{$\pm$2.085} &	96.287	\tiny{$\pm$0.940} & 71.097	\tiny{$\pm$0.609} &	74.659	\tiny{$\pm$1.088} &	80.066	\tiny{$\pm$0.897}\\
+        RandConv + AugMix  & 78.790	\tiny{$\pm$0.975} & 65.400	\tiny{$\pm$1.611} &	93.840	\tiny{$\pm$1.020} &	71.285	\tiny{$\pm$2.730} & 71.825	\tiny{$\pm$1.315} &	77.329	\tiny{$\pm$1.105}\\
+        \midrule
+        ALT$_{g-only}$ & 84.575	\tiny{$\pm$1.047} &	68.867	\tiny{$\pm$2.126} &	94.768	\tiny{$\pm$0.43} &	74.421	\tiny{$\pm$0.441} &	75.954	\tiny{$\pm$1.119} &	80.658	\tiny{$\pm$0.929}\\
+        ALT$_{RandConv}$ & 83.916	\tiny{$\pm$0.51} &	68.086	\tiny{$\pm$1.901} &	95.190	\tiny{$\pm$0.686} &	74.487	\tiny{$\pm$0.505} &	75.496	\tiny{$\pm$0.799} &	80.420	\tiny{$\pm$0.644} \\
+        ALT$_{AugMix}$ & 85.964	\tiny{$\pm$1.098} &	71.943	\tiny{$\pm$1.234} &	94.599	\tiny{$\pm$0.560} &	74.172	\tiny{$\pm$0.752} &	77.360	\tiny{$\pm$0.734} &	81.670	\tiny{$\pm$0.667}\\
+        \bottomrule
+    \end{tabular}
+    % ,\textbf{bold}: best result. 
+    }
+    \label{tab:results_pacs_C}
+\end{table*}
+
+\begin{table*}
+    \centering\small
+    \caption{SSDG performance on PACS for the S$\rightarrow$PAC setting. $^\star$Source Domain.
+    % \resizebox{\linewidth}{!}{
+    \begin{tabular}{@{}l llll ll@{}}
+        \toprule
+        \textbf{Method} & \textbf{Photo}    & \textbf{Art-Painting} & \textbf{Cartoon}  & \textbf{Sketch$^\star$}       & \textbf{Target Avg.}  & \textbf{PACS Avg.} \\
+        \midrule
+        % ERM             & 12.958 \tiny{$\pm$ 1.034} & 12.988 \tiny{$\pm$ 2.526} & 15.819 \tiny{$\pm$ 5.314} & 90.761 \tiny{$\pm$ 0.828} & 13.922 \tiny{$\pm$ 2.650} & 33.132 \tiny{$\pm$ 2.007} \\
+        RandConv           & 46.132	\tiny{$\pm$4.879} &	52.168	\tiny{$\pm$1.623} &	63.942	\tiny{$\pm$2.219} &	94.264	\tiny{$\pm$0.673} &	54.081	\tiny{$\pm$1.959} &	64.126	\tiny{$\pm$1.465}\\
+        AugMix          & 46.731 \tiny{$\pm$2.916} & 37.852	\tiny{$\pm$1.878} &	58.575	\tiny{$\pm$1.747} &	94.221	\tiny{$\pm$0.711} &	47.719	\tiny{$\pm$1.723} &	59.345	\tiny{$\pm$1.268}\\
+        RandConv + AugMix  & 54.359	\tiny{$\pm$0.819} &	46.074	\tiny{$\pm$2.709} &	61.246	\tiny{$\pm$1.245} &	94.171	\tiny{$\pm$0.582} &	53.893	\tiny{$\pm$0.945} &	63.963	\tiny{$\pm$0.787}\\
+        \midrule
+        ALT$_{g-only}$ & 49.305	\tiny{$\pm$2.775} &	39.658	\tiny{$\pm$3.423} &	61.109	\tiny{$\pm$1.853} &	94.573	\tiny{$\pm$0.466} &	50.024	\tiny{$\pm$2.408} &	61.161	\tiny{$\pm$1.726}\\
+        ALT$_{RandConv}$ & 51.305 \tiny{$\pm$0.866} & 41.787	\tiny{$\pm$1.174} &	62.773	\tiny{$\pm$1.089} &	94.724	\tiny{$\pm$0.527} &	51.955	\tiny{$\pm$0.791} &	62.647	\tiny{$\pm$0.571}\\
+        ALT$_{AugMix}$  & 49.078 \tiny{$\pm$2.072} & 40.186	\tiny{$\pm$2.494} &	62.901	\tiny{$\pm$0.358} &	94.271	\tiny{$\pm$0.624} &	50.721	\tiny{$\pm$1.414} &	61.609	\tiny{$\pm$1.103}\\
+        \bottomrule
+    \end{tabular}
+    % }
+    % , \textbf{bold}: best result. 
+    }
+    \label{tab:results_pacs_S}
+\end{table*}

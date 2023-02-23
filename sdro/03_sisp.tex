@@ -1,0 +1,51 @@
+\section{SISP Sentence Transformations}
+This section describes the generation of semantics-preserving (SP) and semantics-inverting (SI) statements.
+\textbf{SISP} transforms are implemented using Spacy~\citep{spacy}.
+Dataset statistics and additional visualizations are in the Appendix.
+
+\noindent \textbf{Noun Synonym/Antonym:}
+We extract nouns (subjects and objects) with dependency parsing, and find two nearest (synonyms) or farthest (antonyms) neighbors in the GloVe space~\citep{pennington2014glove} using a threshold of $0.55$.
+
+\noindent \textbf{Verb Synonym/Antonym:}
+We extract verbs using POS tagging and obtain their synonyms or antonyms.
+Verbs are lemmatized and inflected to the correct form using Lemminflect~\citep{lemminflect}.
+
+\noindent \textbf{Comparative Synonym/Antonym:}
+Adjectival complements and modifiers are replaced with synonyms (\textit{large $\rightarrow$ big}) or antonyms (\textit{large $\rightarrow$ small}). 
+
+\noindent \textbf{Number Substitution:}
+Numerals are replaced by number-words (2 $\rightarrow$ \textit{two}) or vice versa for SP transformations, or by their lower or upper bounds,
+(SP: \textit{3 $\rightarrow$ more than two}, SI: \textit{two $\rightarrow$ less than two}).
+
+\noindent \textbf{Pronoun Substitution:}
+Human-related nouns (such as \textit{woman, boy, people}) are substituted by pronouns, while pronouns are substituted by generic descriptors (\textit{something, someone, somebody, they}).
+
+\noindent \textbf{Negation:}
+We use template-based negation~\citep{gokhale2020vqa} with Subject-Verb Agreement~\citep{wren2000english}.
+We add \textit{`did not'} before a past-tense verb, \textit{`do not'}, \textit{`does not'}, or \textit{`not'} before a base-form verb, gerund, or participle, or a \textit{`not'} before an adposition or adjective.
+
+\noindent \textbf{Subject-Object Swap:}
+Nominal or clausal subjects and direct or prepositional objects from the sentence are swapped for inverting semantics.
+
+\noindent \textbf{Paraphrasing:}
+Input sentences are translated to Russian and then back-translated to English using neural machine translation~\citep{ott2019fairseq}.
+
+\subsection{Data Analysis}
+\label{sec:sisp_fidelity_bias}
+\paragraph{Quantification of Bias:}
+\input{sdro/tables/eval_textonly_bias}
+Since SISP transforms are based on templates, they can potentially introduce spurious linguistic correlations in the dataset.
+For example, in NLVR$^2$ and VIOLIN datasets, negations and indefinite pronouns
+are infrequent.
+To quantify how this could impact models, we mask out the entire image and evaluate models (with VILLA as the backbone for NLVR$^2$ and HERO for VIOLIN).
+This acts as a `text-only' evaluation, with accuracies ${\sim}50\%$ implying lesser bias since models do not have access to visual information.
+Table~\ref{tab:eval_textonly_bias} shows that SP transforms inflict lesser bias on models than SI transforms.
+The effect of bias is dataset-specific; SI makes the prediction of NLVR$^2$ samples harder than random (less than $50\%$ accuracy) but easier for VIOLIN.\\
+
+
+\noindent\textbf{Transformation Fidelity:}
+We employ human subjects to evaluate the quality of SISP-transformed sentences on (1) correctness of labels, (2) grammar, (3) semantics, and (4) visual grounding. 
+We report a unified average `transformation fidelity' (details are in Appendix).
+Fidelity is higher for SP samples than SI ($90.50\%$ v/s $79.51\%$), which resonates with the complexities of inversion of meaning~\citep{russell1905denoting} and leaves room for improvement in SI transformation.
+Although some level of ambiguity exists in SISP transforms, our results show that SDRO models benefit from transformed data.
+

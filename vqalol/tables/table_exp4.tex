@@ -1,0 +1,40 @@
+\begin{table}
+    \centering
+    \begin{tabular}{p{2cm} c c cc c cc}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} &  & \hphantom & \multicolumn{2}{c}{\textbf{VQA-Compose}} & \hphantom &  \multicolumn{2}{c}{\textbf{VQA-Supplement}}\\
+        \cmidrule{4-5} \cmidrule{7-8}
+         & \textbf{YN} & & Single & Multiple & & Single & Multiple\\
+        \toprule
+        \multirow{1}{*}{\pbox{10mm}{\footnotesize LXMERT}}
+        % & YN + C          & 84.16 & 84.71  & 65.60 & 80.63 & 66.55 \\
+        & 85.07 & & 83.95 & 61.99 & & 86.65 & 60.00 \\
+        \midrule
+        \multirow{1}{*}{\footnotesize LOL}
+        % & YN + C & \underline{\textbf{85.13}} & \underline{\textbf{85.85}} & \underline{\textbf{66.87}} & 81.66 & \underline{\textbf{79.10}}\\
+        & 85.12 & & 84.60 & 66.03 & & \underline{\textbf{87.42}} & 66.05  \\
+        \bottomrule
+        % \multirow{2}{*}{\pbox{15mm}{\footnotesize LXMERT + \\Type + Conn}}
+        % & YN + C & 85.17 & 81.88 & \textbf{70.58} & 90.76 & 46.19 \\
+        % & YN + C + S & 85.19 & 81.16 & 57.76 & 91.88 & 47.76  \\
+        % \hline
+    \end{tabular}
+    \begin{tabular}{p{2cm} cc c cc}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multicolumn{2}{c}{\textbf{VQA-Compose}} & \hphantom &  \multicolumn{2}{c}{\textbf{VQA-Supplement}}\\
+        \cmidrule{2-3} \cmidrule{5-6}
+        & $Q_1\circ~Q_2$ & $Q_2\circ~Q_1$ & & $Q_1\circ~Q_2$ & $Q_2\circ~Q_1$\\
+        \toprule
+        \multirow{1}{*}{\pbox{10mm}{\footnotesize LXMERT}} & 
+        82.34 & 80.44 & & 85.57 & 81.78\\
+        \midrule
+        \multirow{1}{*}{\footnotesize LOL} & 84.91 & 83.64 & & 85.62 & 83.41\\
+        \bottomrule
+        % \multirow{2}{*}{\pbox{15mm}{\footnotesize LXMERT + \\Type + Conn}}
+        % & YN + C & 85.17 & 81.88 & \textbf{70.58} & 90.76 & 46.19 \\
+        % & YN + C + S & 85.19 & 81.16 & 57.76 & 91.88 & 47.76  \\
+        % \hline
+    \end{tabular}
+    \caption[Generalization]{Validation accuracies ($\%$) for Compositional Generalization and Commutative Property. Note that 50\% is random performance.\footnotemark[2]}
+    \label{table:exp4}
+\end{table}

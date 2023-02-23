@@ -1,0 +1,37 @@
+\begin{table}
+    \centering
+    % \footnotesize
+    % \resizebox{0.9\linewidth}{!}{
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Clean Acc.}} & \multicolumn{3}{c}{\textbf{SISP Acc.}} \\
+        \cmidrule{3-5}
+         &  & SP & SI & Avg. \\
+        \midrule
+        LXMERT$_{BASE}$                 & 74.37 & 69.20 & 37.35 & 53.28 \\
+        \qquad + VILLA                   & \cellcolor{VeryLightGray}{75.98} & 69.94 & 39.09 & 56.15\\
+        \qquad + data-aug         & 71.83 & 70.13 & 66.34 & 68.23 \\
+        \qquad + SW-SDRO          & 71.19 & 67.41 & 66.32 & 66.86 \\
+        \qquad + GW-SDRO         & \cellcolor{VeryLightGray}{74.55} & 69.06 & 69.34 & 69.20\\
+        \qquad \qquad + Ensemble      & \cellcolor{VeryLightGray}{74.75} & --''-- & --''-- & --''-- \\
+        \midrule
+        UNITER$_{BASE}$                 & 77.85 & 72.73 & 34.86 & 53.80 \\
+        \qquad + data-aug         & 76.65 & 70.34 & 81.04 & 75.69 \\
+        \qquad + SW-SDRO        & \cellcolor{VeryLightGray}{78.43} & 69.71 & 67.50 & 68.61 \\
+        \qquad + GW-SDRO         & 77.55 & 67.93 & 81.66 & 74.79\\
+        \qquad \qquad + Ensemble      & \cellcolor{VeryLightGray}{80.00} & --''-- & --''-- & --''-- \\
+        \midrule 
+        VILLA$_{BASE}$               & 78.39 & \textul{73.15} & 34.15 & 53.65 \\
+        \qquad + data-aug         & 78.34 & 72.11 & 84.44 & \textul{77.77} \\
+        \qquad + SW-SDRO         & \cellcolor{VeryLightGray}{\textbf{79.23}} & 69.23 & 67.35 & 68.29 \\
+        \qquad + GW-SDRO          & \cellcolor{VeryLightGray}{\textbf{79.41}} & 68.67 & \textul{84.54} & 76.60 \\
+        \qquad \qquad + Ensemble      & \cellcolor{VeryLightGray}{\textbf{82.22}} & --''-- & --''-- & --''-- \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption[Results on the NLVR2 public test set.]{
+        Results on the NLVR$^2$ public test set.
+        \footnotemark
+        }
+    \label{tab:results_nlvr2}
+\end{table}

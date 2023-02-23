@@ -1,0 +1,27 @@
+%%%%%%%%% DISCUSSION 
+\section{Discussion}
+\paragraph{On Ensembling Coefficients.}
+While designing our ensembling approach, we used $\alpha=0.5$, i.e., equal contribution from the original output and the average of all outputs for transformed samples.
+This choice is generic and does not rely on dataset- or model-specific characteristics of SISP accuracy.
+While treating $\alpha$ as a hyperparameter and tuning it on validation datasets could lead to further gains, our intuitive choice of $\alpha{=}0.5$ is effective by itself.
+
+\paragraph{On SI Samples.}
+Tables~\ref{tab:results_nlvr2},~\ref{tab:results_violin},~\ref{tab:results_vqayesno} show that existing models perform well on SP transforms, implying that equivalent semantics are captured in transformer-based models.
+However, these models fail on SI samples, and thus the average SISP accuracy is close to random $(50\%)$. 
+When images are perturbed with noise, blur, weather, or digital artifacts~\citep{hendrycks2018benchmarking}, they retain semantics -- an image of a ``cat'' remains a cat after perturbation.
+However, for text inputs, minimal changes to the sample, such as a single word changing from ``sitting'' to ``standing'' or ``not sitting'', inflict large changes in meaning.
+We hope that future work on design of V\&L evaluation criterion along the SI axis, could benefit from our findings.
+While we generated SI and SP text for VLI tasks, the idea could be extended to design SISP transformations for images, by operating at object-level instead of pixel-level
+
+\paragraph{On combination of AT and SDRO.}
+We show that combining AT with SDRO can improve VLI performance and incorporate domain knowledge into the training process, such as semantic knowledge that often exists in natural language or linguistic rules.
+This is explicitly observed with VILLA, which is pre-trained and fine-tuned using standard adversarial training~\citep{gan2020large}.
+When fine-tuned with SDRO, VILLA+SDRO further improves compared to UNITER+SDRO.
+The combination of standard adversarial training, (which accounts for local adversaries inside a $\epsilon$ norm-ball) and SDRO, (which accounts for linguistic adversaries and contrastive examples, typically outside the norm-ball as shown in Figure~\ref{fig:vector_vs_linguistic}) could lead to improved generalization in many other V\&L tasks.
+
+\paragraph{On differentiability.}
+Linguistic transforms are not differentiable and prohibit gradient-based solutions to the inner maximization in SDRO.
+Nevertheless, we show that explicitly choosing the $argmax$ over a pre-defined set of transformations does indeed lead to model-agnostic improvements for multiple V\&L tasks.
+This is a first step towards incorporating domain knowledge into adversarial training. 
+More sophisticated methods may emerge in the future to address non-differentiability by leveraging proximal point or trust-region methods~\citep{eckstein1993nonlinear,conn2000trust} or Interval Bound Propagation~\citep{dvijotham2018dual,jia2019certified}.
+

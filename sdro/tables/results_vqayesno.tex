@@ -1,0 +1,34 @@
+\begin{table}
+    \centering
+    % \resizebox{0.9\linewidth}{!}{
+    \begin{tabular}{@{}lcccc@{}}
+        \toprule
+        \multirow{2}{*}{\textbf{Model}} & \multirow{2}{*}{\textbf{Clean Acc.}} & \multicolumn{3}{c}{\textbf{SISP Acc.}} \\
+        \cmidrule{3-5}
+         &  & SP & SI & Avg. \\
+        \midrule
+        % % LXMERT (all data)           & 86.65 & 75.41 & 34.09 & 54.75\\
+        % LXMERT\footnote{LXMERT and UNITER follow a different train-val split}                      & 82.71 & 75.53 & 33.32 & 53.92\\
+        % LXMERT\footnotemark[1] + LOL                & 84.75 & 73.77 & 42.97 & 58.37 \\
+        % LXMERT-VILLA              & {83.85} & 76.70 & 34.68 & 55.59 \\
+        % \midrule
+        UNITER$_{BASE}$             & 83.49 & 72.04 & 38.90 & 55.47 \\
+        \qquad + data-aug           & 82.53 & 77.03 & 93.70 & 85.36 \\
+        \qquad + SW-SDRO    & \cellcolor{VeryLightGray}{83.92} & 75.82 & 88.92 & 81.48 \\ 
+        \qquad + GW-SDRO     & \cellcolor{VeryLightGray}{84.05} & 76.95 & 93.41 & 85.18 \\
+        \qquad \qquad + Ensemble     & \cellcolor{VeryLightGray}{84.22} & --''-- & --''-- & --''-- \\
+        \midrule
+        VILLA$_{BASE}$              & 84.82 & 74.15 & 37.40 & 55.77 \\
+        \qquad + data-aug            & 83.54 & \textul{78.33} & \textul{94.55} & \textul{86.45} \\
+        \qquad + SW-SDRO    & 84.54 & 74.02 & 88.32 & 81.17 \\
+        \qquad + GW-SDRO     & \textbf{\cellcolor{VeryLightGray}{{85.12}}} & 77.92 & 93.42 & 85.67 \\
+        \qquad \qquad + Ensemble     & \cellcolor{VeryLightGray}{\textbf{85.37}} & --''-- & --''-- & --''-- \\
+        \bottomrule
+    \end{tabular}
+    % }
+    \caption[Results on the VQA yes/no subset.
+    Not to be compared with VQA-v2 leaderboard since we use a smaller training set.]{Results on the VQA yes/no subset.\footnotemark[\value{footnote}] Not to be compared with VQA-v2 leaderboard since we use a smaller training set of \textit{yes/no} questions.
+    % Note that these results should not be compared with VQA-v2 leaderboard since we use a smaller training set.
+    }
+    \label{tab:results_vqayesno}
+\end{table}

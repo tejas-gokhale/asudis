@@ -1,0 +1,24 @@
+\chapter{Adversarially Learned Transformations for Single-Source Domain Generalization}
+\label{chap:alt}
+In Chapter~\ref{chap:agat}, we looked at a relaxed setting of the generalization problem -- in that setting, information about the target domain was available in terms of a set of attributes that are known to differ at test time.
+% (target samples are not available).
+In this chapter we will go beyond attributes and address the harder and broader problem of domain generalization.
+
+% As discussed earlier, domain generalization is the problem of making accurate predictions on previously unseen domains, especially when these domains are very different from the data distribution on which the model was trained. 
+% In this chapter, we will tackle an even harder problem -- \textit{single source domain generalization (SSDG)}, where the model has access only to a single training domain, and is expected to generalize to multiple different testing domains. 
+% This is especially hard because of the limited information available to train the model with just a single source. 
+
+\input{alt/01_intro.tex}
+% \input{alt/02_related_work}
+
+\input{alt/03_methods}
+\input{alt/04_experiments}
+\input{alt/05_analysis}
+
+\section{Conclusion}
+In this paper, we address the problem of single source domain generalization. Our approach, Adversarially Learned Transformations (ALT) uses a randomly initialized convolutional network to learn plausible image transformations of the source domain that can fool the classifier. These images are used to enforce a consistency with the predictions on clean images. We showed that this strategy outperforms all existing techniques on multiple benchmarks because it is able to generate a diverse set of large transformations of the source domain. 
+%
+% In this paper, we started with the hypothesis that diversity alone or adversarial training alone is not enough for generalizing to unseen domains in the single-source domain generalization setting, as was confirmed by our experiments and mixed results on prior methods on different benchmarks.
+We also find that ALT can be naturally combined with existing diversity modules like RandConv or AugMix to improve their performance (sometimes significantly). We also studied the different parts of ALT through extensive ablations and analysis to obtain insights into its performance gains. Our studies indicate that na\"ive diversity alone is insufficient, but needs to be combined adversarial transformations to maximize generalization performance. 
+
+

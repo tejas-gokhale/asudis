@@ -1,0 +1,18 @@
+\begin{table}
+    \centering
+    \small
+    \resizebox{\linewidth}{!}{   
+    \begin{tabular}{@{}p{0.24\linewidth}p{0.35\linewidth}p{0.35\linewidth}@{}}
+        \toprule
+        \textbf{Attribute} & \textbf{Train} & \textbf{Test} \\
+        \toprule
+        
+        {{Size and Position}} & {(small, NW), (medium, NE), (large, SE)} & {(small, SE), (medium, NW), (large, SW)} \\
+        \midrule
+        {Material and Position} & {(metal, NW), (rubber, NW), (metal, NE), (rubber, NE)} & (rubber, SW), (metal, SW), (rubber, SE), (metal, SE)\\
+        \bottomrule
+    \end{tabular}
+    }
+    \caption{The train and test splits for our experiments with semantic object-level perturbations for CLEVR-Singles.}
+    \label{tab:clevr_splits}
+\end{table}

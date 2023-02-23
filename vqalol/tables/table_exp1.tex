@@ -1,0 +1,48 @@
+\begin{table}
+    \centering
+    % \resizebox{0.85\linewidth}{!}{
+    \begin{tabular}{p{0.15\linewidth} p{0.3\linewidth} cccc}
+    \toprule
+    & & \multicolumn{4}{c}{\textbf{Validation Accuracy (\%) $\uparrow$}}\\
+    \cmidrule{3-6}
+    \textbf{Model} & \textbf{Trained on} & VQA & YN & Comp & Supp \\
+    \toprule
+    \multirow{3}{*}{\footnotesize LXMERT}
+    & VQA &               68.94 & \textbf{86.65} & 50.79 & 50.51 \\
+    & VQA + Comp &        67.85 & 85.32 & 85.03 & 80.85 \\
+    & VQA + Comp + Supp & 68.83 & 84.83 & 70.28 & 85.17 \\
+
+    \textit{ \footnotesize with FC Loss} & VQA + Comp + Supp & 67.84 &	84.92 & 75.31 &	85.25 \\
+    \midrule
+    \multirow{3}{*}{{\footnotesize LOL (qATT)}}
+    & VQA &               \underline{\textbf{69.08}} & \underline{85.32} & 48.99 & 50.54 \\
+    & VQA + Comp &        67.51 & 84.82 & 84.85 & 79.62 \\
+    & VQA + Comp + Supp & 68.72 & 84.99 & 79.88 & 87.12 \\
+    \midrule
+    
+    \multirow{3}{*}{\pbox{25mm}{\footnotesize LOL (Full)}}
+    & VQA + Comp &        68.94 & 85.15 & \underline{\textbf{85.13}} & 79.02\\
+    & VQA + Comp + Supp & 68.86 & 84.87 & 81.07 & 87.54\\
+
+    \textit{ \footnotesize with FC Loss} & VQA + Comp + Supp & 68.10 &	84.75 & 82.39 &	\underline{\textbf{87.80} }\\
+    
+    \midrule 
+    \midrule
+    %% YES-NO only training
+    \multirow{2}{*}{{\footnotesize LXMERT}}
+    & YN + Comp & - & 84.13 & 84.44 & 79.39 \\
+    & YN + Comp + Supp & - & 84.09 & 82.63 & 88.15 \\ 
+    \midrule 
+    
+    %% YES-NO only training
+    \multirow{2}{*}{{\footnotesize LOL ($\ell$ATT})}
+    & YN + Comp & - & 85.22 & \underline{\textbf{85.31}} & 79.87 \\
+    & YN + Comp + Supp & - & 85.26 & 84.37 & \underline{\textbf{89.00}}\\ 
+    \bottomrule
+    \end{tabular}
+    % }
+    \caption[Comparison of LXMERT and LOL when trained on VQA dataset and the combinations of VQA and \texttt{VQA-Compose}, \texttt{VQA-Supplement}.]{Comparison of LXMERT and LOL trained on VQA data, combinations with \texttt{Compose}, \texttt{Supplement}, and our Frechet-Compatibility (FC) Loss \footnotemark}
+    
+    \label{table:exp1}
+\end{table}
+\footnotetext{In all tables, best overall scores are bold, our best scores underlined.}
